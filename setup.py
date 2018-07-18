@@ -4,7 +4,7 @@ with open('README.md', 'r') as rdme:
     long_description = rdme.read()
 
 setup(
-    name='Running Goals',
+    name='Running Pipes',
     version='0.1.0',
     author='Andrew Piper',
     description='small web app to track running goals',
