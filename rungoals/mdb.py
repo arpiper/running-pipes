@@ -5,10 +5,12 @@ from flask import current_app, g
 
 def get_db():
     if 'db' not in g:
-        auth = current_app['DATABASE']
-        g.db = MongoClient(
-            f"mongodb://{auth['user']}:{auth['pass']}@{auth['host']}:{auth['port']}/{auth['auth']}"
-        )
+        if 'DATABASE' in current_app.config.keys():
+            auth = current_app.config['DATABASE']
+            cs = f"mongodb://{auth['user']}:{auth['pass']}@{auth['host']}:{auth['port']}/{auth['auth']}"
+            g.db = MongoClient(cs)
+        else:
+            g.db = MongoClient()
 
     return g.db.runningGoals
 

@@ -5,16 +5,9 @@ from flask_cors import CORS
 
 def create_app(test_config=None):
     # create and configure the application
-    app =Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE={
-            'user': 'pipesBills',
-            'pass': '432twoone',
-            'host': '127.0.0.1',
-            'port': '27017',
-            'auth': 'admin',
-        },
     )
 
     if test_config is None:
@@ -39,5 +32,9 @@ def create_app(test_config=None):
     # add the authorization blueprint
     from . import auth
     app.register_blueprint(auth.bp)
+
+    # add the api blueprint
+    from . import api
+    app.register_blueprint(api.bp)
 
     return app
