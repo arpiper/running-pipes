@@ -1,3 +1,4 @@
+import calendar
 from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app
 from werkzeug.exceptions import abort
 
@@ -34,5 +35,31 @@ def get_goal(id):
         'data': {
             'goalid': id,
             'goal': 'GOOAAAAAL!',
+        },
+    })
+
+@bp.route('/goals/<int:year>', methods=['GET'])
+def get_goals_year(year):
+    data = strava.get_activities_by_year(year)
+    return jsonify({
+        'message': f'get all running activities for {year}',
+        'data': {
+            'year': year,
+            'activities': data,
+        },
+    })
+
+@bp.route('/goals/<int:year>/<int:month>', methods=['GET'])
+def get_goals_month(year, month):
+    data = strava.get_activities_by_year(year, month)
+    return jsonify({
+        'message': f'get all running activities for {calendar.month_name[month]} {year}',
+        'data': {
+            'year': year,
+            'month': {
+                'name': calendar.month_name[month],
+                'idx': month,
+            },
+            'activities': data,
         },
     })
