@@ -1,6 +1,19 @@
 import os
+import json
+import datetime
+from bson.objectid import ObjectId
 from flask import Flask
 from flask_cors import CORS
+from flask_pymongo import PyMongo
+
+class JSONEncoder(json.JSONEncoder):
+    '''extend the json-encoder class'''
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        if isinstance(o, datetime.datetime):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 def create_app(test_config=None):
@@ -22,19 +35,21 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    # use the modified json encoder
+    app.json_encoder = JSONEncoder
+
     # enable CORS
     CORS(app)
 
     # initialize the database
-    from . import mdb
-    mdb.init_app(app)
+    from . import services
+    services.init_app(app)
 
-    # add the authorization blueprint
-    from . import auth
-    app.register_blueprint(auth.bp)
+    # import and initialize the routes with the app
+    from . import routes 
+    routes.init_app(app)
 
-    # add the api blueprint
-    from . import api
-    app.register_blueprint(api.bp)
+    from . import models 
+    models.init_app(app)
 
     return app

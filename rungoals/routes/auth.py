@@ -1,11 +1,11 @@
 import functools
 from flask import Blueprint, g, flash, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-from rungoals.mdb import get_db
+from ..services.mdb import get_db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/register', methods=('GET','POST'))
+@auth_bp.route('/register', methods=('GET','POST'))
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -29,7 +29,7 @@ def register():
     })
 
 
-@bp.route('/login', methods=('POST', 'GET'))
+@auth_bp.route('/login', methods=('POST', 'GET'))
 def login():
     if request.method == 'POST':
         return jsonify({

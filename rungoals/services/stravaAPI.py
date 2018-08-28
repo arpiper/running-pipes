@@ -1,6 +1,14 @@
 from datetime import datetime
+from flask import current_app, g
 
 import requests
+
+def get_strava():
+    if 'strava' not in g:
+        token = current_app.config['STRAVA']['ACCESS_TOKEN']
+        g.strava = StravaAPI(token=token)
+    return g.strava
+
 
 class StravaAPI():
     api_url = 'https://www.strava.com/api/v3/'

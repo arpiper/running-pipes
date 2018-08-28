@@ -8,8 +8,6 @@ flask = "*"
 flask-cors = "*"
 pymongo = "*"
 requests = "*"
+flask-pymongo = "*"
 
 [dev-packages]
-
-[requires]
-python_version = "3.6"
