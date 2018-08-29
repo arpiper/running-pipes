@@ -39,6 +39,7 @@ def create_app(test_config=None):
     app.json_encoder = JSONEncoder
 
     # enable CORS
+    #CORS(app, resource={r'/api/*': { 'origins': '*'}} )
     CORS(app)
 
     # initialize the database

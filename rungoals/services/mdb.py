@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
-from ..models.users import Users
 
 from flask import current_app, g
 

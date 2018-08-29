@@ -1,12 +1,15 @@
 import calendar
 from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app
 from werkzeug.exceptions import abort
+from bson import ObjectId
 
 from .auth import login_required
 from ..services.mdb import get_db
 from ..services.stravaAPI import get_strava
+from ..models.goals import Goals
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+goals = Goals()
 
 @api_bp.route('/data', methods=['GET'])
 def get_data():
@@ -17,16 +20,28 @@ def get_data():
         'db': db.collection_names(),
     })
 
-@api_bp.route('/goals', methods=['GET'])
+@api_bp.route('/goals', methods=['GET', 'POST'])
 def get_goals():
-    #strava = StravaAPI(token=current_app.config['STRAVA']['ACCESS_TOKEN'])
-    #data = get_activities(token=current_app.config['STRAVA']['ACCESS_TOKEN'])
-    data = get_strava().get_activities()
-    return jsonify({
-        'message': 'get all the running goals',
-        'data': data,
-    })
-
+    if request.method == 'GET':
+        data = get_strava().get_athlete_stats()
+        return jsonify({
+            'message': 'get all the running goals',
+            'data': data,
+        })
+    elif request.method == 'POST':
+        data = request.get_json()
+        print(data)
+        if not data: 
+            return jsonify({
+                'message': 'invalid data given',
+            })
+        goalid = goals.save(data)
+        return jsonify({
+            'message': 'new goal added',
+            'data': {
+                'id': goalid,
+            },
+        })
 
 @api_bp.route('/goals/<int:id>', methods=['GET'])
 def get_goal(id):
