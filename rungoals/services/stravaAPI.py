@@ -25,7 +25,7 @@ class StravaAPI():
     # Returns the authenticated athlete profile from Strava
     ####
     def get_auth_athlete(self):
-        url = f'{self.api_url}/athelete'
+        url = f'{self.api_url}/athlete'
         r = requests.get(url, headers=self.headers)
         return r.json()
 
