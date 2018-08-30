@@ -1,7 +1,7 @@
 <template>
   <div class="form__goal">
     <form name="add_goal" @submit.prevent="formSubmit">
-      <input type="hidden" name="goal_userid" :value="userid" >
+      <input type="hidden" name="goal_userid" :value="userId" >
       <select name="goal_type" v-model="goal_type">
         <option v-for="(type, idx) in goal_types" :value="type" :key="idx">
           {{ type }}
@@ -28,7 +28,7 @@
 export default {
   name: 'add-goal',
   props: {
-    userid: [String, Number],
+    userId: [String, Number],
   },
   data () {
     return {
@@ -45,8 +45,8 @@ export default {
     }
   },
   methods: {
-    formSubmit(evt) {
-      console.log('ect', evt)
+    formSubmit() {
+      console.log('ect', this.userId)
       let data = {
         userid: this.userid,
         target: this.goal_target,
