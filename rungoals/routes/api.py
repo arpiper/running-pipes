@@ -11,6 +11,17 @@ from ..models.goals import Goals
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 goals = Goals()
 
+@api_bp.route('/athlete', methods=['GET'])
+def get_athlete():
+    st = get_strava()
+    athlete = st.get_auth_athlete()
+    return jsonify({
+        'message': 'Retreived Strava athlete',
+        'data': {
+            'athlete': athlete,
+        }
+    })
+
 @api_bp.route('/data', methods=['GET'])
 def get_data():
     db = get_db()
@@ -23,7 +34,8 @@ def get_data():
 @api_bp.route('/goals', methods=['GET', 'POST'])
 def get_goals():
     if request.method == 'GET':
-        data = get_strava().get_athlete_stats()
+        st = get_strava()
+        data = st.get_activities_by_month()
         return jsonify({
             'message': 'get all the running goals',
             'data': data,
