@@ -7,11 +7,11 @@ class Goals(dict):
         self.connection = connection.goals
 
     def save(self, goal):
-        if not goal._id:
+        if '_id' not in goal.keys():
             resultid = self.connection.insert_one(goal).inserted_id
         else:
             resultid = self.connection.update_one(
-                {'_id': ObjectId(goal._id)}, 
+                {'_id': ObjectId(goal['_id'])}, 
                 goal
             ).upserted_id
         return resultid
@@ -22,6 +22,8 @@ class Goals(dict):
         })
 
     def get_many(self, userid):
+        if type(userid) == 'str': 
+            userid = int(userid)
         cursor = self.connection.find({
             'userid': userid,
         })

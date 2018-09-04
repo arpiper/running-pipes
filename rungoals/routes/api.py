@@ -34,15 +34,25 @@ def get_data():
 @api_bp.route('/goals', methods=['GET', 'POST'])
 def get_goals():
     if request.method == 'GET':
+        if 'userid' not in request.args.keys():
+            return jsonify({
+                'message': 'error retrieving goals',
+                'data': {
+                    'error': 'no user id given',
+                }
+            })
         st = get_strava()
         data = st.get_activities_by_month()
+        goal_list = goals.get_many(request.args['userid'])
         return jsonify({
             'message': 'get all the running goals',
-            'data': data,
+            'data': {
+                'goals': goal_list,
+                'athlete': data,
+            },
         })
     elif request.method == 'POST':
         data = request.get_json()
-        print(data)
         if not data: 
             return jsonify({
                 'message': 'invalid data given',
