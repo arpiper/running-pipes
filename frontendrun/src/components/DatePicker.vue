@@ -1,25 +1,39 @@
 <template>
-  <div class="block__datepicker datepicker-wrapper" :class="wrapper_classes">
-    <label ref="label" for="#input_datepicker" :class="labels_classes">
+  <div class="datepicker" :class="wrapper_classes">
+    <label ref="label" for="#input_datepicker" :class="label_classes" class="datepicker__label">
       {{ label_name }}
     </label>
     <input 
       readonly="true" 
       :class="input_classes" 
+      class="datepicker__input"
       type="text" 
       :name="name" 
-      id="input__datepicker" 
-      @click="init(event)" 
+      id="input_datepicker" 
+      @click="showDatePicker()" 
       ref="input"
-      :value="isoFormat" 
-    >
-    <div class="datepicker hide" ref:container>
+      :value="isoFormat">
+    <div v-if="show" class="datepicker__calendar" ref:container>
+      <div class="datepicker__header">
+        <span class="datepicker__prev" @click="setMonth(month.index - 1)">&lt;-</span>
+        <span>{{ month.name }}</span>
+        <span class="datepicker__next" @click="setMonth(month.index + 1)">-&gt;</span>
+      </div>
+      <span 
+        v-for="(day, i) of days" 
+        :key="i+day" 
+        class="datepicker__dayname"
+        :style="{left: i * (100 / 7) + '%', top: 20 + 'px'}">
+        {{ day }}
+      </span>
       <span 
         v-for="(date, idx) of dates"
         :key="idx"
-        :style="date.style"
-      >
-        {{ date.day }}
+        :style="getDateBlockStyle(date)"
+        class="datepicker__day"
+        :class="date.classes"
+        @click='pickDate($event, date.day)'>
+        {{ date.day.getDate() }}
       </span>
     </div>
   </div>
@@ -39,57 +53,110 @@ export default {
   },
   data () {
     return {
+      show: false,
       days: ["S","M","T","W","T","F","S"], 
-      leap_year: false,
       today: new Date(),
-      year: 0,
-      month: 0,
+      month: {
+        name: '',
+        index: 0
+      },
       insert: false,
-      name: "date",
+      name: 'date',
+      date: new Date(),
       dates: [],
-      months = {
-        0: {name: "January", days: 31},
-        1: {name: "February", days: 28},
-        2: {name: "March", days: 31},
-        3: {name: "April", days: 30},
-        4: {name: "May", days: 31},
-        5: {name: "June", days: 30},
-        6: {name: "July", days: 31},
-        7: {name: "August", days: 31},
-        8: {name: "September", days: 30},
-        9: {name: "October", days: 31},
-        10: {name: "November", days: 30},
-        11: {name: "December", days: 31}
-      }
+      months: [
+        'January', 'February', 'March', 'April', 'May', 'June', 'July',
+        'August', 'September', 'October', 'November', 'December'
+      ],
     }
   },
   computed: {
-    isoFormat (d) {
-      return d.toISOString().split('T')[0]
-    }
-    month () {
-      return this.today.getMonth()
+    isoFormat () {
+      return this.date.toISOString().split('T')[0]
     },
     year () {
       return this.today.getFullYear()
     },
   },
-  oncreate() {
-    // global click to close on click away event.
+  created () {
+    // set the month/dates for the current month
+    this.month.index = this.today.getUTCMonth()
+    this.month.name = this.months[this.month.index]
+    this.dates = this.createDatesArray(this.today)
   },
   methods: {
+    // toggle whether to show/hide the datepicker calendar
+    showDatePicker () {
+      this.show = !this.show
+    },
+    // pick the date and emit the datePicked event
     pickDate (evt, date) {
+      this.date = date
+      this.showDatePicker()
+      this.$emit('datePicked', date)
     },
-    nextMonth (m) {
-    },
-    prevMonth (m) {
+    // set the the month to the given value
+    setMonth (m) {
       let d = new Date(this.year, m, 1)
       this.dates = this.createDatesArray(d)
-    }
-    createDatesArray(d) {
+      this.month = {
+        name: this.months[d.getUTCMonth()],
+        index: m,
+      }
     },
-    
-
+    // return a style object for individual date blocks
+    getDateBlockStyle (d) {
+      return {
+        left: `${(100 / 7) * d.day.getDay()}%`,
+        top: `${d.row * 20}px`,
+      }
+    },
+    // create an array of date objects for the selected month 
+    // and any trailing/leading days
+    createDatesArray (d) {
+      let month = d.getUTCMonth()
+      let year = d.getUTCFullYear()
+      let last = new Date(year, month + 1, 0)
+      let first = new Date(year, month, 1)
+      let rowValue = 2
+      let a = []
+      // create the leading days for the month before the selected one.
+      let end = first.getDay() > 0 ? first.getDay() : 7
+      for (let i = 1; i <= end; i++) {
+        a.push({
+          day: new Date(year, month, i - end),
+          row: rowValue,
+          classes: 'datepicker__day_extra',
+        })
+      }
+      // create array with the selected month's dates
+      let m = Array(last.getDate())
+        .fill(1, 0, last.getDate())
+        .map((v,i) => {
+          let day = new Date(year, month, i + 1)
+          //rowValue = Math.abs(Math.floor((day.getDay() - day.getDate()) / 7)) + 1
+          if (day.getDay() === 0) {
+            rowValue++
+          }
+          if (day.toDateString() === this.today.toDateString()) {
+            return {day: day, row: rowValue, classes: 'datepicker__day_today'}
+          }
+          return {day: day, row: rowValue, classes: ''}
+        })
+      // create array of trailing days for following month
+      let b = []
+      if (last.getDay() !== 6) {
+        for (let i = 1; i < 7 - last.getDay(); i++) {
+          b.push({
+            day: new Date(year, month + 1, i),
+            row: rowValue,
+            classes: 'datepicker__day_extra',
+          })
+        }
+      }
+      // return a single array with the three groups of dates
+      return a.concat(m, b)
+    },
     positionContainer (target) {
       this.$refs.container.styles ={
         "left": target.offsetLeft
@@ -101,65 +168,64 @@ export default {
 </script>
 
 <style scoped>
-div, 
-span {
+.datepicker,
+.datepicker__input,
+.datepicker__label,
+.datepicker__calendar,
+.datepicker__header,
+.datepicker__dayname,
+.datepicker__day,
+.datepicker__next,
+.datepicker__prev {
   box-sizing: border-box;
 }
 .datepicker {
-  width: 50%;
-  box-sizing: border-box;
-  text-align: center;
+  position: relative;
+}
+.datepicker__input {
+  width: 100%;
+}
+.datepicker__calendar {
   position: absolute;
-  z-index: 1000;
-  cursor: default;
-  background-color: #eee;
-}
-.datepicker.hide {
-  display: none;
-}
-.datepicker span {
-  display: inline-block;
-}
-.datepicker .month {
-  width: 71.42%;
-}
-.datepicker .day-name {
-  font-wieght: bold;
-  background-color: #bbb;
-}
-.datepicker .day, 
-.datepicker .day-name, 
-.datepicker .month, 
-.datepicker .spacer, 
-.datepicker .gap, 
-.datepicker .arrow {
-  font-size: 1em;
-  height: 30px;
-  line-height: 30px;
-  /*border-left: 1px solid grey;
-  border-top: 1px solid gray;*/
-}
-.datepicker .day, 
-.datepicker .day-name, 
-.datepicker .arrow, 
-.datepicker .gap, 
-.datepicker .spacer {
-  width: 14.28%;
-  vertical-align: top;
-}
-.datepicker .weekend {
-  background-color: hsla(110, 90%, 50%, .5);
-}
-.datepicker .today {
-  background-color: hsla(200, 100%, 50%, .75 );
-}
-.datepicker .day:hover, 
-.datepicker .arrow:hover {
-  background-color: hsla(220, 100%, 50%, .75);
-}
-.datepicker .gap, 
-.datepicker .spacer {
+  left: 0;
+  z-index: 100;
   background-color: #ddd;
-  font-size: 16px;
+  width: 100%;
+  height: auto;
+}
+.datepicker__header,
+.datepicker__dayname,
+.datepicker__day {
+  text-align: center;
+  background-color: #ddd;
+  height: 20px;
+  padding: 2px;
+}
+.datepicker__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.datepicker__dayname,
+.datepicker__day {
+  position: absolute;
+  width: 14.29%;
+}
+.datepicker__day_extra {
+  color: #888;
+}
+.datepicker__day_today {
+  color: #a33;
+}
+.datepicker__next,
+.datepicker__prev {
+  width: 20%;
+}
+.datepicker__day:hover,
+.datepicker__next:hover,
+.datepicker__prev:hover {
+  cursor: pointer;
+  background-color: rgba(76, 175, 80, 1);
 }
 </style>
