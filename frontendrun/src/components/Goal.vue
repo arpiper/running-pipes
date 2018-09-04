@@ -1,7 +1,5 @@
 <template>
-  <div class="block__goals">
-    <div class="block__goal">
-    </div>
+  <div>
   </div>
 </template>
 
@@ -9,7 +7,10 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'goals',
+  name: 'goal',
+  props: {
+    id: [String, Number]
+  },
   data () {
     return {
     }
@@ -18,35 +19,37 @@ export default {
     ...mapGetters({
       api: 'api',
       userId: 'getUserId',
-    })
-  },
-  watch: {
-    userId (id) {
-      if (id !== 0) {
-        this.getGoals()
+    }),
+    fetchBody () {
+      return {
+        _id: this.id,
+        userId: this.userId,
       }
-    }
+    },
   },
   methods: {
-    getGoals () {
+    getGoalData () {
       let options = {
+        //body: JSON.stringify(this.fetchBody)
         method: 'GET',
+        //withCredentials: true,
         mode: 'cors',
         headers: {
           'content-type': 'application/json',
         },
       }
-      fetch(`${this.api}/goals?userid=${this.userId}`, options)
+      fetch(`${this.api}/goals/${this.id}`, options)
         .then(res => res.json())
         .then(res => {
-          console.log('fetch goals', res)
+          console.log('fetch one goal', res)
         })
     },
   },
   created () {
-    //this.getGoals()
-  },
-  mounted () {
+    this.getGoalData()
   }
 }
 </script>
+
+<style>
+</style>

@@ -2,19 +2,24 @@
   <div class="form__goal">
     <form name="add_goal" @submit.prevent="formSubmit">
       <input type="hidden" name="goal_userid" :value="userId" >
-      <select name="goal_type" v-model="goal_type">
-        <option v-for="(type, idx) in goal_types" :value="type" :key="idx">
-          {{ type }}
-        </option>
-      </select>
       <div class="form__group">
-        <label>Start Date</label>
-        <input v-model="goal_start" >
+        <label >Goal Type</label>
+        <select name="goal_type" v-model="goal_type">
+          <option v-for="(type, idx) in types" :value="type" :key="idx">
+            {{ type }}
+          </option>
+        </select>
       </div>
-      <div class="form__group">
-        <label>End Date</label>
-        <input v-model="goal_end">
-      </div>
+      <DatePicker 
+        @datePicked="startDatePicked($event)" 
+        label_name="Start Date" 
+        wrapper_classes="form__group">
+      </DatePicker>
+      <DatePicker 
+        @datePicked="endDatePicked($event)" 
+        label_name="End Date" 
+        wrapper_classes="form__group">
+      </DatePicker>
       <div class="form__group">
         <label for="goal_target">Target</label>
         <input id="goal_target" name="goal_target" v-model="goal_target" />
@@ -25,6 +30,7 @@
 </template>
 
 <script>
+import DatePicker from './DatePicker.vue'
 export default {
   name: 'add-goal',
   props: {
@@ -33,22 +39,27 @@ export default {
   data () {
     return {
       goal_target: '',
-      goal_types: [
+      types: [
         'distance',
         'time',
         'pace',
       ],
       goal_type: undefined,
-      goal_start: 0,
-      goal_end: 0,
-      goal_url: 'http://localhost:5000/api/goals',
+      goal_start: new Date().toISOString().split('T')[0],
+      goal_end: new Date().toISOString().split('T')[0],
+      url: 'http://localhost:5000/api/goals',
     }
   },
   methods: {
-    formSubmit() {
-      console.log('ect', this.userId)
+    startDatePicked (date) {
+      this.goal_start = date.toISOString().split('T')[0]
+    },
+    endDatePicked (date) {
+      this.goal_end = date.toISOString().split('T')[0]
+    },
+    formSubmit () {
       let data = {
-        userid: this.userid,
+        userid: this.userId,
         target: this.goal_target,
         type: this.goal_type,
         start: this.goal_start,
@@ -59,15 +70,19 @@ export default {
         //credentials: 'include',
         body: JSON.stringify(data),
         mode: 'cors',
-        header: {
+        headers: {
           'content-type': 'application/json'
         },
       }
-      fetch(this.goal_url, options)
+      fetch(this.url, options)
         .then(res => {
           console.log(res)
+          return res.json()
         })
-    }
+    },
+  },
+  components: {
+    DatePicker,
   }
 }
 </script>
