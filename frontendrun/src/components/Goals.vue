@@ -1,17 +1,24 @@
 <template>
   <div class="block__goals">
     <div class="block__goal">
+      <Goal 
+        v-for="goal of goals"
+        :key="goal._id"
+        :goal="goal">
+      </Goal>
     </div>
   </div>
 </template>
 
 <script>
+import Goal from './Goal.vue'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'goals',
   data () {
     return {
+      goals: [],
     }
   },
   computed: {
@@ -22,7 +29,7 @@ export default {
   },
   watch: {
     userId (id) {
-      if (id !== 0) {
+      if (id !== undefined) {
         this.getGoals()
       }
     }
@@ -40,6 +47,7 @@ export default {
         .then(res => res.json())
         .then(res => {
           console.log('fetch goals', res)
+          this.goals = res.data.goals
         })
     },
   },
@@ -47,6 +55,9 @@ export default {
     //this.getGoals()
   },
   mounted () {
-  }
+  },
+  components: {
+    Goal,
+  },
 }
 </script>

@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div class="goal">
+    <div>
+      <span v-if="goal.name">{{ goal.name }}</span>
+      <span>{{ goal.target }}</span>
+      <span>{{ goal.end_date }}</span>
+    </div>
   </div>
 </template>
 
@@ -9,7 +14,8 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'goal',
   props: {
-    id: [String, Number]
+    id: [String, Number],
+    goal: [Object, Array],
   },
   data () {
     return {
@@ -20,17 +26,10 @@ export default {
       api: 'api',
       userId: 'getUserId',
     }),
-    fetchBody () {
-      return {
-        _id: this.id,
-        userId: this.userId,
-      }
-    },
   },
   methods: {
     getGoalData () {
       let options = {
-        //body: JSON.stringify(this.fetchBody)
         method: 'GET',
         //withCredentials: true,
         mode: 'cors',
@@ -46,7 +45,7 @@ export default {
     },
   },
   created () {
-    this.getGoalData()
+    //this.getGoalData()
   }
 }
 </script>

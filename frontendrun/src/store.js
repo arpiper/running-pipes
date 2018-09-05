@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
-    userId: 0,
+    userId: undefined,
     api_uri: 'http://localhost:5000/api',
     athlete: undefined,
   },
