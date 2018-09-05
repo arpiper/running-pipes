@@ -3,6 +3,10 @@
     <form name="add_goal" @submit.prevent="formSubmit">
       <input type="hidden" name="goal_userid" :value="userId" >
       <div class="form__group">
+        <label>Name</label>
+        <input type="text" v-model="goal_name">
+      </div>
+      <div class="form__group">
         <label >Goal Type</label>
         <select name="goal_type" v-model="goal_type">
           <option v-for="(type, idx) in types" :value="type" :key="idx">
@@ -44,6 +48,7 @@ export default {
         'time',
         'pace',
       ],
+      goal_name: 'Goal',
       goal_type: undefined,
       goal_start: new Date().toISOString().split('T')[0],
       goal_end: new Date().toISOString().split('T')[0],
@@ -59,6 +64,7 @@ export default {
     },
     formSubmit () {
       let data = {
+        name: this.goal_name,
         userid: this.userId,
         target: this.goal_target,
         type: this.goal_type,
