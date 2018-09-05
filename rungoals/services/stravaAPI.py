@@ -40,7 +40,7 @@ class StravaAPI():
     ####
     # return a range of activities between two timestampts.
     ####
-    def get_activities(self, before=None, after=None, page=1, per_page=20):
+    def get_activities(self, before=None, after=None, page=1, per_page=30):
         base_url = f'{self.api_url}athlete/activities'
         # end datetime of activity range
         if before is None:

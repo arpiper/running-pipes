@@ -48,7 +48,7 @@ def get_goals():
             'message': 'get all the running goals',
             'data': {
                 'goals': goal_list,
-                'athlete': data,
+                'activities': data,
             },
         })
     elif request.method == 'POST':
@@ -57,7 +57,8 @@ def get_goals():
             return jsonify({
                 'message': 'invalid data given',
             })
-        goalid = goals.save(data)
+        #goalid = goals.save(data)
+        goalid = goals.create_goal(data)
         return jsonify({
             'message': 'new goal added',
             'data': {
@@ -88,7 +89,7 @@ def get_goals_year(year):
 
 @api_bp.route('/goals/<int:year>/<int:month>', methods=['GET'])
 def get_goals_month(year, month):
-    data = get_strava().get_activities_by_year(year, month)
+    data = get_strava().get_activities_by_month(year, month)
     return jsonify({
         'message': f'get all running activities for {calendar.month_name[month]} {year}',
         'data': {
