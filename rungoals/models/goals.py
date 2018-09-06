@@ -8,10 +8,20 @@ class Goals(dict):
     strava = None
 
     def init_app(self, connection):
+        '''
+        Initialize the Goal class
+
+        :param Mongo.DB connection: Mongo Database connection
+        '''
         self.connection = connection.goals
         self.strava = get_strava()
 
     def save(self, goal):
+        '''
+        Save goal to the database
+
+        :param dict goal: a goal
+        '''
         if '_id' not in goal.keys():
             resultid = self.connection.insert_one(goal).inserted_id
         else:
@@ -22,11 +32,23 @@ class Goals(dict):
         return resultid
 
     def get_one(self, goalid):
+        '''
+        Retrieve a goal from the database
+
+        :param str goalid: MongoDB goal id string
+        :return: goal dict
+        '''
         return self.connection.find_one({
             '_id': ObjectId(goalid)
         })
 
     def get_many(self, userid):
+        '''
+        Retrieve all goals related to a user
+
+        :param int userid: Strava user id
+        :return: list of goals
+        '''
         if type(userid) == str: 
             userid = int(userid)
         cursor = self.connection.find({
@@ -38,16 +60,25 @@ class Goals(dict):
         return goals
 
     def create_goal(self, goal):
+        '''
+        Create a new goal object
+
+        :param dict goal: Initial goal data
+        :return: the new goal
+        '''
         goal['target'] = float(goal['target'])
-        if goal['type'] == 'distance':
-            goal['progress'] = self.update_goal_progress(goal)
+        goal['progress'] = self.update_goal_progress(goal)
 
         return self.save(goal)
 
-    ##
-    # grab all the relavent activities and update the progress towards it.
-    ##
+
     def update_goal_progress(self, goal):
+        '''
+        Grab the activities within the goal dates and update the progress.
+
+        :param dict goal: goal dictionary
+        :return: goal
+        '''
         start = dt.fromisoformat(goal['start'])
         if 'progress' in goal.keys():
             start = dt.fromisoformat(goal['progress']['most_recent']['date'])
@@ -70,19 +101,28 @@ class Goals(dict):
             page += 1
         if 'progress' in goal.keys():
             return self.aggregate_activities(all_activities, 
-                goal['target'], 'Run', goal['progress'])
-        return self.aggregate_activities(all_activities, goal['target'], 'Run')
+                goal['target'], 'Run', goal['type'], goal['progress'])
+        return self.aggregate_activities(all_activities, goal['target'], 'Run', goal['type'])
         
-    ##
-    # aggregate the activities for a total distance 
-    # and other goal related stats
-    ##
-    def aggregate_activities(self, activities, target, goal_type, p=None):
+
+    def aggregate_activities(self, activities, target, act_type, goal_type, p=None):
+        '''
+        Aggregate the activities for a total distance and time
+        and other goal related statistics
+
+        :param list activities: list of activities for the goal
+        :param int target: goal target
+        :param str act_type: activity type
+        :param str goal_type: goal type
+        :param dict p: (optional) goal progress 
+        :return: dict progress
+        '''
         # initialize the empty p dict if no goal['progress'] dict passed
         if not p:
             p = {
                 'activity_cnt': 0,
                 'activities': [],
+                'current_duration': 0,
                 'current_distance': 0,
                 'percent_complete': 0,
                 'most_recent': {
@@ -91,24 +131,32 @@ class Goals(dict):
                 }
             }
         for act in activities:
-            if act['type'] == goal_type:
-                # strip the Z. python datetime doesn't like it
-                t = act['start_date_local'][:-1] 
-                # track the most recent activity for later updates
-                if (not p['most_recent']['date'] or 
-                    (p['most_recent']['date'].timestamp() 
-                    < dt.fromisoformat(t).timestamp())):
-                    p['most_recent']['date'] = dt.fromisoformat(t)
-                    p['most_recent']['id'] = act['id']
+            # guard against the wrong activities
+            if act['type'] != activity_type:
+                continue 
 
-                # 1km = 0.621371 miles / 1 m = 0.000621371 miles
-                p['current_distance'] += (act['distance'] * 0.000621371)
-                p['activities'].append({
-                    'id': act['id'],
-                    'distance': act['distance'] * 0.000621371,
-                    'date': act['start_date_local'],
-                    'moving_time': act['moving_time'],
-                })
-                p['activity_cnt'] += 1
-        p['percent_complete'] = 100 * (p['current_distance'] / target)
+            # strip the Z. python datetime doesn't like it
+            t = act['start_date_local'][:-1] 
+            # track the most recent activity for later updates
+            if (not p['most_recent']['date'] or 
+                (p['most_recent']['date'].timestamp() 
+                < dt.fromisoformat(t).timestamp())):
+                p['most_recent']['date'] = dt.fromisoformat(t)
+                p['most_recent']['id'] = act['id']
+
+            # 1km = 0.621371 miles / 1 m = 0.000621371 miles
+            # convert the distance from meters to miles
+            p['current_distance'] += (act['distance'] * 0.000621371)
+            p['current_duration'] += act['moving_time'] # time in seconds
+            p['activities'].append({
+                'id': act['id'],
+                'distance': act['distance'] * 0.000621371,
+                'date': act['start_date_local'],
+                'moving_time': act['moving_time'],
+            })
+            p['activity_cnt'] += 1
+        if goal_type == 'distance':
+            p['percent_complete'] = 100 * (p['current_distance'] / target)
+        elif goal_type == 'time': 
+            p['percent_complete'] = 100 * (p['current_duration'] / target)
         return p
