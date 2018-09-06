@@ -101,8 +101,9 @@ class Goals(dict):
             page += 1
         if 'progress' in goal.keys():
             return self.aggregate_activities(all_activities, 
-                goal['target'], 'Run', goal['type'], goal['progress'])
-        return self.aggregate_activities(all_activities, goal['target'], 'Run', goal['type'])
+                goal['target'], goal['activity'], goal['type'], goal['progress'])
+        return self.aggregate_activities(all_activities, goal['target'], 
+            goal['activity'], goal['type'])
         
 
     def aggregate_activities(self, activities, target, act_type, goal_type, p=None):
