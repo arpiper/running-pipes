@@ -1,9 +1,15 @@
 <template>
   <div class="goal">
-    <div>
-      <span v-if="goal.name">{{ goal.name }}</span>
+    <div class="goal__info">
+      <span v-if="goal.name">
+        <h3>{{ goal.name }}</h3>
+      </span>
       <span>{{ goal.target }}</span>
       <span>{{ goal.end_date }}</span>
+    </div>
+    <div v-if="goal.progress" class="goal__progress">
+      <span>{{ goal.progress.current_distance | formatNumber }}</span>
+      <span>{{ goal.progress.percent_complete | formatNumber(0) }}%</span>
     </div>
   </div>
 </template>
@@ -27,6 +33,11 @@ export default {
       userId: 'getUserId',
     }),
   },
+  filters: {
+    formatNumber (num, decimals=2) {
+      return num.toFixed(decimals)
+    },
+  },
   methods: {
     getGoalData () {
       let options = {
@@ -45,10 +56,15 @@ export default {
     },
   },
   created () {
-    //this.getGoalData()
   }
 }
 </script>
 
 <style>
+.goal {
+  display: flex;
+}
+.goal__info {
+  padding: 10px;
+}
 </style>

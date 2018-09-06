@@ -1,15 +1,23 @@
 <template>
-  <div class="form__goal">
-    <form name="add_goal" @submit.prevent="formSubmit">
+  <div>
+    <form name="add_goal" @submit.prevent="formSubmit" class="form__goal">
       <input type="hidden" name="goal_userid" :value="userId" >
       <div class="form__group">
         <label>Name</label>
-        <input type="text" v-model="goal_name">
+        <input type="text" v-model="goal_name" autocomplete="off">
       </div>
       <div class="form__group">
         <label >Goal Type</label>
         <select name="goal_type" v-model="goal_type">
-          <option v-for="(type, idx) in types" :value="type" :key="idx">
+          <option v-for="(type, idx) in goal_types" :value="type" :key="idx">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+      <div class="form__group">
+        <label>Activity</label>
+        <select name="goal_activity" v-model="goal_activity">
+          <option v-for="type in goal_activities" :value="type" :key="type">
             {{ type }}
           </option>
         </select>
@@ -26,7 +34,7 @@
       </DatePicker>
       <div class="form__group">
         <label for="goal_target">Target</label>
-        <input id="goal_target" name="goal_target" v-model="goal_target" />
+        <input id="goal_target" name="goal_target" v-model="goal_target" autocomplete="off" />
       </div>
       <button>submit</button>
     </form>
@@ -35,25 +43,38 @@
 
 <script>
 import DatePicker from './DatePicker.vue'
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'add-goal',
   props: {
-    userId: [String, Number],
+    //userId: [String, Number],
   },
   data () {
     return {
       goal_target: '',
-      types: [
+      goal_types: [
         'distance',
         'time',
         'pace',
       ],
-      goal_name: 'Goal',
-      goal_type: undefined,
+      goal_activities: [
+        'Run',
+        'Ride',
+        'Swim',
+      ],
+      goal_name: "Goal",
+      goal_activity: 'Run',
+      goal_type: 'distance',
       goal_start: new Date().toISOString().split('T')[0],
       goal_end: new Date().toISOString().split('T')[0],
       url: 'http://localhost:5000/api/goals',
     }
+  },
+  computed: {
+    ...mapGetters({
+      userId: 'getUserId',
+    }),
   },
   methods: {
     startDatePicked (date) {
@@ -92,3 +113,16 @@ export default {
   }
 }
 </script>
+
+<style>
+.form__goal {
+  width: 100%;
+  flex-direction: column;
+  width: 100%;
+}
+.form__group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+</style>

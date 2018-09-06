@@ -1,12 +1,13 @@
 <template>
-  <div class="block__goals">
-    <div class="block__goal">
+  <div>
+    <div class="goals">
       <Goal 
         v-for="goal of goals"
         :key="goal._id"
         :goal="goal">
       </Goal>
     </div>
+
   </div>
 </template>
 
@@ -25,7 +26,7 @@ export default {
     ...mapGetters({
       api: 'api',
       userId: 'getUserId',
-    })
+    }),
   },
   watch: {
     userId (id) {
@@ -61,3 +62,11 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.goals {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+</style>
