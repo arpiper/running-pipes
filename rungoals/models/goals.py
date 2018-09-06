@@ -55,16 +55,20 @@ class Goals(dict):
         page = 1
         all_activities = []
         while 1:
+            # fetch the activities from the Strava API
             activities = self.strava.get_activities(
                 before=end.timestamp(),
                 after=start.timestamp(),
                 page=page,
                 per_page=50
             )
+            # check if the result is empty
             if len(activities) == 0:
                 break
             all_activities.extend(activities)
-        if 'progress' in goals.keys():
+            # increment the page for the next call to Strava API
+            page += 1
+        if 'progress' in goal.keys():
             return self.aggregate_activities(all_activities, 
                 goal['target'], 'Run', goal['progress'])
         return self.aggregate_activities(all_activities, goal['target'], 'Run')
