@@ -1,6 +1,6 @@
 <template>
   <div class="datepicker" :class="wrapper_classes">
-    <label ref="label" for="#input_datepicker" :class="label_classes" class="datepicker__label">
+    <label ref="label" :class="label_classes" class="datepicker__label">
       {{ label_name }}
     </label>
     <input 
@@ -9,11 +9,11 @@
       class="datepicker__input"
       type="text" 
       :name="name" 
-      id="input_datepicker" 
+      :id="input_datepicker_id" 
       @click="showDatePicker()" 
       ref="input"
       :value="isoFormat">
-    <div v-if="show" class="datepicker__calendar" ref:container>
+    <div v-if="show" class="datepicker__calendar" ref:container :style="calendarPos">
       <div class="datepicker__header">
         <span class="datepicker__prev" @click="setMonth(month.index - 1)">&lt;-</span>
         <span>{{ month.name }}</span>
@@ -50,6 +50,7 @@ export default {
       type: String,
       default: 'Date',
     },
+    input_datepicker_id: [String, Number],
   },
   data () {
     return {
@@ -68,6 +69,7 @@ export default {
         'January', 'February', 'March', 'April', 'May', 'June', 'July',
         'August', 'September', 'October', 'November', 'December'
       ],
+      calendarPos: undefined,
     }
   },
   computed: {
@@ -83,6 +85,14 @@ export default {
     this.month.index = this.today.getUTCMonth()
     this.month.name = this.months[this.month.index]
     this.dates = this.createDatesArray(this.today)
+
+  },
+  mounted () {
+    console.log('mount',this.$refs.input.offsetHeight)
+    let height = this.$refs.input.offsetHeight + this.$refs.label.offsetHeight
+    this.calendarPos = {
+      top: `${height}px`,
+    }
   },
   methods: {
     // toggle whether to show/hide the datepicker calendar

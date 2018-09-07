@@ -25,11 +25,13 @@
       <DatePicker 
         @datePicked="startDatePicked($event)" 
         label_name="Start Date" 
+        id="goal_start_date"
         wrapper_classes="form__group">
       </DatePicker>
       <DatePicker 
         @datePicked="endDatePicked($event)" 
         label_name="End Date" 
+        id="goal_end_date"
         wrapper_classes="form__group">
       </DatePicker>
       <div class="form__group">

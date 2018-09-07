@@ -1,7 +1,10 @@
 <template>
   <div id="app" class="app__container">
+    <header class="app__header">
+      Header
+    </header>
     <div class="app__body">
-      <Goals></Goals>
+      <GoalsList></GoalsList>
     </div>
     <div class="app__sidebar">
       <AthleteInfo></AthleteInfo>
@@ -9,11 +12,14 @@
         <div class="button__addgoal">
           <span @click="toggleAdd()">add</span>
         </div>
-        <div v-show="addGoal">
+        <div v-if="addGoal">
           <AddGoal></AddGoal>
         </div>
       </div>
     </div>
+    <footer class="app__footer">
+      Footer
+    </footer>
   </div>
 </template>
 
@@ -21,7 +27,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import AthleteInfo from './components/AthleteInfo.vue'
 import AddGoal from './components/AddGoal.vue'
-import Goals from './components/Goals.vue'
+import GoalsList from './components/GoalsList.vue'
 
 export default {
   name: 'app',
@@ -34,7 +40,7 @@ export default {
   components: {
     AthleteInfo,
     AddGoal,
-    Goals,
+    GoalsList,
   },
   computed: {
     ...mapGetters([
@@ -93,10 +99,22 @@ export default {
     'body sidebar'
     'footer footer'
 }
+.app__header {
+  grid-area: header;
+  /* temp for visual*/
+  background-color: var(--color-main);
+}
 .app__body {
-  grid-area: 'body';
+  grid-area: body;
 }
 .app__sidebar {
-  grid-area: 'sidebar';
+  grid-area: sidebar;
+  /* temp for visual*/
+  border-left: 1px solid var(--color-gray-medium);
+}
+.app__footer {
+  grid-area: footer;
+  /* temp for visual*/
+  border-top: 1px solid var(--color-gray-medium);
 }
 </style>

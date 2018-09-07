@@ -1,18 +1,18 @@
 <template>
   <div>
     <div class="goals">
-      <Goal 
+      <GoalItem 
         v-for="goal of goals"
         :key="goal._id"
         :goal="goal">
-      </Goal>
+      </GoalItem>
     </div>
 
   </div>
 </template>
 
 <script>
-import Goal from './Goal.vue'
+import GoalItem from './GoalItem.vue'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -58,7 +58,7 @@ export default {
   mounted () {
   },
   components: {
-    Goal,
+    GoalItem,
   },
 }
 </script>

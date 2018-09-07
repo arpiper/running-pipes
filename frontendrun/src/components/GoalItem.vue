@@ -18,7 +18,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'goal',
+  name: 'goal-item',
   props: {
     id: [String, Number],
     goal: [Object, Array],
