@@ -47,13 +47,11 @@ export default {
       fetch(`${this.api}/goals?userid=${this.userId}`, options)
         .then(res => res.json())
         .then(res => {
-          console.log('fetch goals', res)
           this.goals = res.data.goals
         })
     },
   },
   created () {
-    //this.getGoals()
   },
   mounted () {
   },

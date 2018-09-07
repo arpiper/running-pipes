@@ -9,9 +9,10 @@
     <div class="app__sidebar">
       <AthleteInfo></AthleteInfo>
       <div class="goals__create">
-        <div class="button__addgoal">
-          <span @click="toggleAdd()">add</span>
-        </div>
+        <button class="button__button button__button_addgoal" @click="toggleAdd($event)">
+          <span class="button__icon_cross cross"></span>
+          <span class="button__text_cross">Add Goal</span>
+        </button>
         <div v-if="addGoal">
           <AddGoal></AddGoal>
         </div>
@@ -70,7 +71,9 @@ export default {
           this.userId = response.data.athlete.id
         })
     },
-    toggleAdd () {
+    toggleAdd (evt) {
+      console.log(evt)
+      //evt.target.childNodes[0].classList.toggle('cross__x')
       this.addGoal = !this.addGoal
     },
   },
@@ -89,32 +92,59 @@ export default {
   color: #2c3e50;
 }
 .app__container {
-  width: 80%;
+  width: 100%;
   display: grid;
   margin: 0 auto;
   grid-template-rows: 100px 1fr 50px;
-  grid-template-columns: 70% 30%;
+  grid-template-columns: 10% 60% 20% 10%;
   grid-template-areas: 
-    'header header'
-    'body sidebar'
-    'footer footer'
+    'header header header header'
+    'left body sidebar right'
+    'footer footer footer footer'
 }
 .app__header {
   grid-area: header;
   /* temp for visual*/
-  background-color: var(--color-main);
+  background-color: white;
 }
 .app__body {
   grid-area: body;
 }
 .app__sidebar {
   grid-area: sidebar;
-  /* temp for visual*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  /* temp for visual
   border-left: 1px solid var(--color-gray-medium);
+  */
 }
 .app__footer {
   grid-area: footer;
-  /* temp for visual*/
+  background-color: white;
+  /* temp for visual
   border-top: 1px solid var(--color-gray-medium);
+  */
+}
+.goals__create {
+  width: 80%;
+}
+.button__button {
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-main);
+  border-radius: 2px;
+  padding: 5px 20px;
+}
+.button__addgoal:hover {
+  cursor: pointer;
+}
+.button__icon {
+}
+.button__text_cross {
+  margin-left: 15px;
 }
 </style>

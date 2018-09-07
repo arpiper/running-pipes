@@ -1,11 +1,14 @@
 <template>
-  <div class="goal">
-    <div class="goal__info">
-      <span v-if="goal.name">
-        <h3>{{ goal.name }}</h3>
+  <div class="goal__item">
+    <div class="goal__header">
+      <span v-if="goal.name" class="goal__info">
+        <h3 class="goal__name">{{ goal.name }}</h3>
+        <span class="goal__target">{{ goal.target }} {{ units }}</span>
       </span>
-      <span>{{ goal.target }}</span>
-      <span>{{ goal.end_date }}</span>
+      <span class="goal__progress_bar" :style="borderBottom()"></span>
+      <span class="goal__dates">
+        {{ start_date | formatDate }} - {{ end_date | formatDate }}
+      </span>
     </div>
     <div v-if="goal.progress" class="goal__progress">
       <span>{{ goal.progress.current_distance | formatNumber }}</span>
@@ -32,39 +35,87 @@ export default {
       api: 'api',
       userId: 'getUserId',
     }),
+    start_date () {
+      return new Date(this.goal.start)
+    },
+    end_date () {
+      return new Date(this.goal.end)
+    },
+    units () {
+      if (this.goal.type == 'distance') {
+        return 'miles'
+      } else if (this.goal.type == 'time') {
+        return 'hours'
+      }
+      return 'minutes/mile'
+    },
   },
   filters: {
     formatNumber (num, decimals=2) {
       return num.toFixed(decimals)
     },
+    formatDate (date) {
+      let month_names = [
+        'January', 'February', 'March', 'April', 'May', 'June', 'July',
+        'August', 'September', 'October', 'November', 'December'
+      ]
+      return `${month_names[date.getMonth()]}, ${date.getDate()} ${date.getFullYear()}`
+    },
   },
   methods: {
-    getGoalData () {
-      let options = {
-        method: 'GET',
-        //withCredentials: true,
-        mode: 'cors',
-        headers: {
-          'content-type': 'application/json',
-        },
+    borderBottom () {
+      let width = '0'
+      if (this.goal.progress) {
+        width = `${this.goal.progress.percent_complete}%`
       }
-      fetch(`${this.api}/goals/${this.id}`, options)
-        .then(res => res.json())
-        .then(res => {
-          console.log('fetch one goal', res)
-        })
+      return {
+        'border-bottom': '2px solid var(--color-main)',
+        'width': width,
+      }
     },
   },
   created () {
+    console.log(this.goal)
   }
 }
 </script>
 
 <style>
-.goal {
+.goal__item {
   display: flex;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 125px;
+  background-color: white;
+  box-shadow: 0px 8px 24px rgba(13, 13, 18, 0.04);
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.goal__header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
 }
 .goal__info {
-  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+.goal__name { 
+  margin: 0;
+  display: inline-block;
+}
+.goal__target {
+  margin-left: 15%;
+}
+.goal__dates {
+  margin-right: auto;
+  padding-top: 5px;
+  font-size: 14px;
+}
+.goal__progress_bar {
+  display: inline-block;
 }
 </style>

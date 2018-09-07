@@ -12,8 +12,11 @@
         --color-secondary: #98541D;
         --color-gray-dark: #3C463C;
         --color-gray-medium: #9E9E9E;
-        --color-gray-light: #F9FBF9;
+        --color-gray-light: #f3f6f6;
         --color-red: #C62828;
+      }
+      * {
+        box-sizing: border-box;
       }
       body, html, #app {
         height: 100%;
@@ -21,6 +24,44 @@
       body {
         padding: 0;
         margin: 0;
+        background-color: var(--color-gray-light);
+      }
+      .cross {
+        background: var(--color-gray-light);
+        height: 1.5em;
+        width: 0.25em;
+        position: relative;
+        display: inline-block;
+        transition: transform 0.5s;
+      }
+      .cross:after {
+        position: absolute;
+        background: var(--color-gray-light);
+        content: "";
+        height: 0.25em;
+        left: -0.625em;
+        top: 0.625em;
+        width: 1.5em;
+        transition: transform 0.5s;
+      }
+      .cross__x {
+        background: var(--color-gray-light);
+        height: 1.5em;
+        width: 0.25em;
+        position: relative;
+        display: inline-block;
+        transform: rotate(45deg);
+        transition: transform 0.5s;
+      }
+      .cross__x:after {
+        position: absolute;
+        background: var(--color-gray-light);
+        content: "";
+        height: 0.25em;
+        left: -0.625em;
+        top: 0.625em;
+        width: 1.5em;
+        transition: transform 0.5s;
       }
     </style>
   </head>
