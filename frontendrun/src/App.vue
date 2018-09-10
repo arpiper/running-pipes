@@ -4,6 +4,7 @@
       Header
     </header>
     <div class="app__body">
+      <CurrentWeek></CurrentWeek>
       <GoalsList></GoalsList>
     </div>
     <div class="app__sidebar">
@@ -28,6 +29,7 @@ import AthleteInfo from './components/AthleteInfo.vue'
 import AddGoal from './components/AddGoal.vue'
 import GoalsList from './components/GoalsList.vue'
 import ButtonCmp from './components/ButtonCmp.vue'
+import CurrentWeek from './components/CurrentWeek.vue'
 
 export default {
   name: 'app',
@@ -42,6 +44,7 @@ export default {
     AddGoal,
     GoalsList,
     ButtonCmp,
+    CurrentWeek,
   },
   computed: {
     ...mapGetters([
@@ -107,6 +110,7 @@ export default {
 }
 .app__body {
   grid-area: body;
+  padding: 10px 0;
 }
 .app__sidebar {
   grid-area: sidebar;
