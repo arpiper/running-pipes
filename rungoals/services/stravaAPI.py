@@ -34,20 +34,34 @@ class StravaAPI():
     ####
     def get_athlete_stats(self, id):
         url = f'{self.api_url}/athletes/{id}/stats'
-        r = request.get(url, headers=self.headers)
+        r = requests.get(url, headers=self.headers)
         return r.json()
     
     ####
     # return a range of activities between two timestampts.
     ####
     def get_activities(self, before=None, after=None, page=1, per_page=30):
+        '''
+        Return the activities between after and before
+
+        :param int before: timestamp to end the range
+        :param int after: timestamp to start the range
+        :param int page: page number of the activity list
+        :param int per_page: number of activities per page
+        :return: list of activities
+        '''
         base_url = f'{self.api_url}athlete/activities'
         # end datetime of activity range
         if before is None:
-            before = datetime.now().timestamp()
+            today = datetime.now()
+            before = today.timestamp()
         # start datetime of activity range
         if after is None:
-            after = datetime(2018, 7, 1, 0, 0).timestamp()
+            after = datetime(
+                today.year, 
+                today.month, 
+                (today.day - 1), 0, 0
+            ).timestamp()
         params = f'?before={before}&after={after}&page={page}&per_page={per_page}'
         r = requests.get(f'{base_url}{params}', headers=self.headers)
         return r.json()
@@ -74,3 +88,5 @@ class StravaAPI():
             year = year + 1
         before = datetime(year, month + 1, 1).timestamp()
         return self.get_activities(before=before, after=after)
+
+

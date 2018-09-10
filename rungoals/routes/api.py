@@ -31,6 +31,17 @@ def get_data():
         'db': db.collection_names(),
     })
 
+@api_bp.route('/activities', methods=['GET'])
+def get_activities():
+    st = get_strava()
+    data = st.get_activities()
+    return jsonify({
+        'message': 'this weeks activites',
+        'data': {
+            'activities': data,
+        }
+    })
+
 @api_bp.route('/goals', methods=['GET', 'POST'])
 def get_goals():
     if request.method == 'GET':
@@ -106,3 +117,14 @@ def get_goals_month(year, month):
 def create_new_goal(userid, goal):
     db = get_db()
     user = db.users.find_one({'id': userid})
+
+@api_bp.route('/stats/<int:athleteid>', methods=['GET'])
+def get_stats(athleteid):
+    st = get_strava()
+    data = st.get_athlete_stats(athleteid)
+    return jsonify({
+        'message': f'retrieving athlete {athleteid} statistics',
+        'data': {
+            'stats': data,
+        }
+    })
