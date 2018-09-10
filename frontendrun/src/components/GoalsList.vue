@@ -26,6 +26,7 @@ export default {
     ...mapGetters({
       api: 'api',
       userId: 'getUserId',
+      GET: 'getGetOpts',
     }),
   },
   watch: {
@@ -37,14 +38,7 @@ export default {
   },
   methods: {
     getGoals () {
-      let options = {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'content-type': 'application/json',
-        },
-      }
-      fetch(`${this.api}/goals?userid=${this.userId}`, options)
+      fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
         .then(res => res.json())
         .then(res => {
           this.goals = res.data.goals

@@ -24,6 +24,15 @@ export default {
       athlete: 'getAthlete',
     })
   },
+  methods: {
+    getStats () {
+      fetch(`${this.api}/stats/${this.userId}`, this.GET)
+        .then(res => res.json())
+        .then(res => {
+          console.log('stats', res)
+        })
+    },
+  },
   mounted () {
   }
 }

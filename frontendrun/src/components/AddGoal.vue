@@ -76,6 +76,7 @@ export default {
   computed: {
     ...mapGetters({
       userId: 'getUserId',
+      POST: 'getPostOpts',
     }),
   },
   methods: {
@@ -94,15 +95,9 @@ export default {
         start: this.goal_start,
         end: this.goal_end,
       }
-      let options = {
-        method: 'POST',
-        //credentials: 'include',
-        body: JSON.stringify(data),
-        mode: 'cors',
-        headers: {
-          'content-type': 'application/json'
-        },
-      }
+      let options = this.POST
+      options[body] = JSON.stringify(data),
+      
       fetch(this.url, options)
         .then(res => {
           console.log(res)
