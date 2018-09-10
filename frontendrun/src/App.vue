@@ -9,10 +9,8 @@
     <div class="app__sidebar">
       <AthleteInfo></AthleteInfo>
       <div class="goals__create">
-        <button class="button__button button__button_addgoal" @click="toggleAdd($event)">
-          <span class="button__icon_cross cross"></span>
-          <span class="button__text_cross">Add Goal</span>
-        </button>
+        <ButtonCmp :toggle='addGoal' @click.native="toggleAdd()">
+        </ButtonCmp>
         <div v-if="addGoal">
           <AddGoal></AddGoal>
         </div>
@@ -29,6 +27,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import AthleteInfo from './components/AthleteInfo.vue'
 import AddGoal from './components/AddGoal.vue'
 import GoalsList from './components/GoalsList.vue'
+import ButtonCmp from './components/ButtonCmp.vue'
 
 export default {
   name: 'app',
@@ -42,6 +41,7 @@ export default {
     AthleteInfo,
     AddGoal,
     GoalsList,
+    ButtonCmp,
   },
   computed: {
     ...mapGetters([
@@ -71,9 +71,7 @@ export default {
           this.userId = response.data.athlete.id
         })
     },
-    toggleAdd (evt) {
-      console.log(evt)
-      //evt.target.childNodes[0].classList.toggle('cross__x')
+    toggleAdd () {
       this.addGoal = !this.addGoal
     },
   },
@@ -129,22 +127,6 @@ export default {
 }
 .goals__create {
   width: 80%;
-}
-.button__button {
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-main);
-  border-radius: 2px;
-  padding: 5px 20px;
-}
-.button__addgoal:hover {
-  cursor: pointer;
-}
-.button__icon {
-}
-.button__text_cross {
-  margin-left: 15px;
+  margin: 0 auto;
 }
 </style>
