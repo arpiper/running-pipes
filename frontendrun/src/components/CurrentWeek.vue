@@ -7,11 +7,22 @@
         {{ weekStart | formatDate }} - {{ weekEnd | formatDate }}
       </span>
     </div>
+    <div class="content__item_main">
+      <div class="content__item_main_left">
+        <span class="content__item_time">{{ totals.time | formatTime }}</span>
+        <span class="content__item_dist">{{ totals.dist | formatDist }}</span>
+      </div>
+      <div class="content__item_main_right">
+        <GoalItemSmall v-for="(g, i) in implicitGoals" :key="i" :goal="g">
+        </GoalItemSmall>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import GoalItemSmall from './GoalItemSmall.vue'
 
 export default {
   name: 'current-week',
@@ -22,6 +33,11 @@ export default {
       loading: true,
       activities: [],
       date: new Date(),
+      totals: {
+        time: 0,
+        dist: 0,
+      },
+      implicitGoals: [],
     }
   },
   computed: {
@@ -29,6 +45,8 @@ export default {
       userId: 'getUserId',
       GET: 'getGetOpts',
       api: 'api',
+      getGoals: 'getGoals',
+      getWeek: 'getWeek',
     }),
     weekStart () {
       let d = this.date.getDay()
@@ -46,7 +64,8 @@ export default {
     },
   },
   watch: {
-    userId (id) {
+    getGoals () {
+      this.checkImplicitGoals()
     },
   },
   filters: {
@@ -54,21 +73,94 @@ export default {
       let s = val.toUTCString().split(' ')
       return `${s[0]} ${s[1]} ${s[2]}`
     },
+    formatDist (val, units='imperial') {
+      if (units === 'imperial') {
+        let m = val * 0.000621371
+        return `${m.toFixed(2)} miles`
+      }
+      return `${(val / 1000).toFixed(2)} km`
+    },
+    formatTime (val) {
+      let m = val / 60
+      let h = 0
+      if (m > 60) {
+        h = m / 60
+        m = m % 60
+      }
+      return `${h}H${m}M`
+    },
+    formatNum (val, decimal=2) {
+      return val.toFixed(decimal)
+    },
   },
   methods: {
+    ...mapMutations([
+      'setWeek',
+    ]),
     getActivities () {
-      fetch(`${this.api}/activities`, this.GET)
-        .then(res => res.json())
-        .then(res => {
-          console.log('activities', res)
-          this.activities = res.data.activities
-          this.loading = false
-        })
+      if (this.getWeek) {
+        this.activities = this.getWeek
+      } else {
+        fetch(`${this.api}/activities`, this.GET)
+          .then(res => res.json())
+          .then(res => {
+            console.log('activities', res)
+            this.setWeek(res.data.activities)
+            this.activities = res.data.activities
+            this.setTotals()
+            this.loading = false
+          })
+      }
+    },
+    setTotals () {
+      this.activities.forEach((a) => {
+        this.totals.time += a.moving_time
+        this.totals.dist += a.distance
+      })
+    },
+    checkImplicitGoals () {
+      // 86400000 milliseconds = 1 day
+      this.getGoals.forEach((goal) => {
+        let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
+        console.log('time', t)
+        if (goal.type === 'distance') {
+          this.implicitGoals.push(this.distanceGoal(goal, t))
+        } else if (goal.type === 'time') {
+          this.implicitGoals.push(this.timeGoal(goal, t))
+        } else {
+          this.implicitGoals.push(this.paceGoal(goal, t))
+        }
+      })
+      console.log(this.implicitGoals)
+    },
+    distanceGoal (goal, time) {
+      let r = goal.target - goal.progress.current_distance
+      console.log('remain', r)
+      return {
+        perDay: r / time,
+        perWeek: (r / time) * 7,
+        percent: this.totals.dist / ((r / time) * 7),
+        name: goal.name,
+      }
+    },
+    timeGoal (goal, time) {
+      let r = goal.target - goal.progress.current_duration
+      return {
+        perDay: r / time,
+        perWeek: (r / time) * 7,
+        percent: this.totals.duration / ((r / time) * 7),
+        name: goal.name,
+      }
+    },
+    paceGoal (goal, time_remain) {
     },
   },
   created () {
     this.getActivities()
   },
+  components: {
+    GoalItemSmall,
+  }
 }
 </script>
 
