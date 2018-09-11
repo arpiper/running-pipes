@@ -10,9 +10,13 @@
         {{ start_date | formatDate }} - {{ end_date | formatDate }}
       </span>
     </div>
-    <div v-if="goal.progress" class="goal__progress">
-      <span>{{ goal.progress.current_distance | formatNumber }}</span>
-      <span>{{ goal.progress.percent_complete | formatNumber(0) }}%</span>
+    <div v-if="goal.progress && goal.type === 'distance'" class="goal__progress">
+      <span class="goal__progress_item">
+        {{ goal.progress.current_distance | formatDist }}
+      </span>
+      <span class="goal__progress_item">
+        {{ goal.progress.percent_complete | formatNumber(0) }}% Completed
+      </span>
     </div>
   </div>
 </template>
@@ -54,6 +58,12 @@ export default {
     formatNumber (num, decimals=2) {
       return num.toFixed(decimals)
     },
+    formatDist (val, units='imperial') {
+      if (units === 'imperial') {
+        return `${val.toFixed(2)} miles`
+      } 
+      return `${val.toFixed(2)} km`
+    },
     formatDate (date) {
       let month_names = [
         'January', 'February', 'March', 'April', 'May', 'June', 'July',
@@ -85,7 +95,7 @@ export default {
   display: flex;
   padding: 10px;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   height: 125px;
   background-color: white;
@@ -117,5 +127,14 @@ export default {
 }
 .goal__progress_bar {
   display: inline-block;
+}
+.goal__progress {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-size: 1.5em;
+}
+.goal__progress_item {
+  margin-left: 10px;
 }
 </style>
