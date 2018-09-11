@@ -13,7 +13,7 @@
 
 <script>
 import GoalItem from './GoalItem.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'goals',
@@ -27,6 +27,7 @@ export default {
       api: 'api',
       userId: 'getUserId',
       GET: 'getGetOpts',
+      getStoreGoals: 'getGoals',
     }),
   },
   watch: {
@@ -37,12 +38,20 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'setGoals',
+    ]),
     getGoals () {
-      fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
-        .then(res => res.json())
-        .then(res => {
-          this.goals = res.data.goals
-        })
+      if (this.getStoreGoals !== undefined) {
+        this.goals = this.getStoreGoals
+      } else {
+        fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
+          .then(res => res.json())
+          .then(res => {
+            this.goals = res.data.goals
+            this.setGoals(res.data.goals)
+          })
+      }
     },
   },
   created () {

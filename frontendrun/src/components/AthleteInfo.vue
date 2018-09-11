@@ -11,26 +11,46 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'athlete-info',
   data () {
     return {
+      stats: undefined,
     }
   },
   computed: {
     ...mapGetters({
       athlete: 'getAthlete',
+      getStoreStats: 'getStats',
+      userId: 'getUserId',
+      GET: 'getGetOpts',
+      api: 'api',
     })
   },
+  watch: {
+    userId (id) {
+      if (id !== undefined) {
+        this.getStats()
+      }
+    }
+  },
   methods: {
+    ...mapMutations([
+      'setStats',
+    ]),
     getStats () {
-      fetch(`${this.api}/stats/${this.userId}`, this.GET)
-        .then(res => res.json())
-        .then(res => {
-          console.log('stats', res)
-        })
+      if (this.getStoreStats) {
+        this.stats = this.getStoreStats
+      } else {
+        fetch(`${this.api}/stats/${this.userId}`, this.GET)
+          .then(res => res.json())
+          .then(res => {
+            console.log('stats', res)
+            this.setStats(res.data.stats)
+          })
+      }
     },
   },
   mounted () {
