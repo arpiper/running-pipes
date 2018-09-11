@@ -94,6 +94,7 @@ export default {
         type: this.goal_type,
         start: this.goal_start,
         end: this.goal_end,
+        active: true,
       }
       let options = this.POST
       options[body] = JSON.stringify(data),
