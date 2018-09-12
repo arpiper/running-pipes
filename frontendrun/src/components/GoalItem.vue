@@ -7,15 +7,15 @@
       </span>
       <span class="goal__progress_bar" :style="borderBottom()"></span>
       <span class="goal__dates">
-        {{ start_date | formatDate }} - {{ end_date | formatDate }}
+        {{ start_date | date('%b%d%Y') }} - {{ end_date | date('%b%d%Y') }}
       </span>
     </div>
     <div v-if="goal.progress && goal.type === 'distance'" class="goal__progress">
       <span class="goal__progress_item">
-        {{ goal.progress.current_distance | formatDist }}
+        {{ goal.progress.current_distance | number | units }}
       </span>
       <span class="goal__progress_item">
-        {{ goal.progress.percent_complete | formatNumber(0) }}% Completed
+        {{ goal.progress.percent_complete | number(0) }}% Completed
       </span>
     </div>
   </div>
@@ -52,24 +52,6 @@ export default {
         return 'hours'
       }
       return 'minutes/mile'
-    },
-  },
-  filters: {
-    formatNumber (num, decimals=2) {
-      return num.toFixed(decimals)
-    },
-    formatDist (val, units='imperial') {
-      if (units === 'imperial') {
-        return `${val.toFixed(2)} miles`
-      } 
-      return `${val.toFixed(2)} km`
-    },
-    formatDate (date) {
-      let month_names = [
-        'January', 'February', 'March', 'April', 'May', 'June', 'July',
-        'August', 'September', 'October', 'November', 'December'
-      ]
-      return `${month_names[date.getMonth()]}, ${date.getDate()} ${date.getFullYear()}`
     },
   },
   methods: {

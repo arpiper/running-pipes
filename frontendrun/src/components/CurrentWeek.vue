@@ -4,13 +4,13 @@
     </span>
     <div v-if="!loading" class="content__item_header">
       <span class="block__current_week">
-        {{ weekStart | formatDate }} - {{ weekEnd | formatDate }}
+        {{ weekStart | date('%b%d') }} - {{ weekEnd | date('%b%d') }}
       </span>
     </div>
     <div class="content__item_main">
       <div class="content__item_main_left">
-        <span class="content__item_time">{{ totals.time | formatTime }}</span>
-        <span class="content__item_dist">{{ totals.dist | formatDist }}</span>
+        <span class="content__item_time">{{ totals.time | time }}</span>
+        <span class="content__item_dist">{{ totals.dist | distance | units }}</span>
       </div>
       <div class="content__item_main_right">
         <GoalItemSmall v-for="(g, i) in implicitGoals" :key="i" :goal="g">
@@ -66,31 +66,6 @@ export default {
   watch: {
     getGoals () {
       this.checkImplicitGoals()
-    },
-  },
-  filters: {
-    formatDate (val) {
-      let s = val.toUTCString().split(' ')
-      return `${s[0]} ${s[1]} ${s[2]}`
-    },
-    formatDist (val, units='imperial') {
-      if (units === 'imperial') {
-        let m = val * 0.000621371
-        return `${m.toFixed(2)} miles`
-      }
-      return `${(val / 1000).toFixed(2)} km`
-    },
-    formatTime (val) {
-      let m = val / 60
-      let h = 0
-      if (m > 60) {
-        h = m / 60
-        m = m % 60
-      }
-      return `${h}H${m}M`
-    },
-    formatNum (val, decimal=2) {
-      return val.toFixed(decimal)
     },
   },
   methods: {
