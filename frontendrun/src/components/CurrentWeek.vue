@@ -13,7 +13,7 @@
         <span class="content__item_dist">{{ totals.dist | distance | units }}</span>
       </div>
       <div class="content__item_main_right">
-        <GoalItemSmall v-for="(g, i) in implicitGoals" :key="i" :goal="g">
+        <GoalItemSmall v-for="g in implicitGoals" :key="g._id" :goal="g">
         </GoalItemSmall>
       </div>
     </div>
@@ -79,7 +79,6 @@ export default {
         fetch(`${this.api}/activities`, this.GET)
           .then(res => res.json())
           .then(res => {
-            console.log('activities', res)
             this.setWeek(res.data.activities)
             this.activities = res.data.activities
             this.setTotals()
@@ -97,25 +96,23 @@ export default {
       // 86400000 milliseconds = 1 day
       this.getGoals.forEach((goal) => {
         let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
-        console.log('time', t)
+        let ig = {name: goal.name, _id: goal._id}
         if (goal.type === 'distance') {
-          this.implicitGoals.push(this.distanceGoal(goal, t))
+          this.implicitGoals.push({...ig, ...this.distanceGoal(goal, t)})
         } else if (goal.type === 'time') {
-          this.implicitGoals.push(this.timeGoal(goal, t))
+          this.implicitGoals.push({...ig, ...this.timeGoal(goal, t)})
         } else {
-          this.implicitGoals.push(this.paceGoal(goal, t))
+          this.implicitGoals.push({...ig, ...this.paceGoal(goal, t)})
         }
       })
-      console.log(this.implicitGoals)
     },
     distanceGoal (goal, time) {
       let r = goal.target - goal.progress.current_distance
-      console.log('remain', r)
+      console.log(this.totals.dist, r, time)
       return {
         perDay: r / time,
         perWeek: (r / time) * 7,
         percent: this.totals.dist / ((r / time) * 7),
-        name: goal.name,
       }
     },
     timeGoal (goal, time) {
@@ -124,10 +121,13 @@ export default {
         perDay: r / time,
         perWeek: (r / time) * 7,
         percent: this.totals.duration / ((r / time) * 7),
-        name: goal.name,
       }
     },
     paceGoal (goal, time_remain) {
+      return {
+        perDay: goal.target,
+        percent: time_remain,
+      }
     },
   },
   created () {

@@ -3,17 +3,67 @@
     <h4 class="goal__header">{{ goal.name }}</h4>
     <span>{{ goal.percent | number(0) }}%</span>
     <span>{{ goal.perWeek | number }}</span>
+    <div class="goal__progress-chart" :id="goalId">
+    </div>
   </div>
 </template>
 
 <script>
+let d3 = require('d3')
+
 export default {
   name: 'goal-item-small',
   props: {
     goal: [Array, Object],
+    id: [String, Number],
+  },
+  data () {
+    return {
+      svg: undefined,
+      arcs: undefined,
+      // radii
+      ir: 35,
+      or: 50,
+      color: '#4caf40'
+    }
+  },
+  computed: {
+    goalId () {
+      return `goal-${this.goal._id}`
+    },
+  },
+  methods: {
+    drawCircle () {
+      this.svg = d3.select(`#${this.goalId}`).append('svg')
+        .attr('viewBox', `0 0 ${this.or * 2} ${this.or * 2}`)
+        //.attr('preserveAspectRatio', 'none')
+      let g = this.svg.append('g')
+        .attr('class', 'goal-progress')
+        .attr('transform', `translate(${this.or}, ${this.or})`)
+
+      let arc = d3.arc()({
+        innerRadius: this.ir,
+        outerRadius: this.or,
+        startAngle: 0,
+        endAngle: ((this.goal.percent / 100) * (Math.PI * 2)),
+      })
+      //let arcs = d3.pie()
+      g.selectAll('path').data([1])
+        .enter().append('path')
+          .attr('class', 'arc')
+          .attr('fill', this.color)
+          .attr('d', arc)
+    },
+  },
+  mounted () {
+    this.drawCircle()
   },
 }
 </script>
 
 <style>
+.goal__progress-chart {
+  width: 110px;
+  margin: auto;
+}
 </style>
