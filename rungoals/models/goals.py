@@ -146,8 +146,7 @@ class Goals(dict):
                 p['most_recent']['id'] = act['id']
 
             # 1km = 0.621371 miles / 1 m = 0.000621371 miles
-            # convert the distance from meters to miles
-            p['current_distance'] += (act['distance'] * 0.000621371)
+            p['current_distance'] += act['distance'] # distance in meters
             p['current_duration'] += act['moving_time'] # time in seconds
             p['activities'].append({
                 'id': act['id'],
