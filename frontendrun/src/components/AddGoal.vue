@@ -1,23 +1,23 @@
 <template>
   <div>
     <form name="add_goal" @submit.prevent="formSubmit" class="form__goal">
-      <input type="hidden" name="goal_userid" :value="userId" >
+      <input type="hidden" name="goalUserId" :value="userId" >
       <div class="form__group">
         <label>Name</label>
-        <input type="text" v-model="goal_name" autocomplete="off">
+        <input type="text" v-model="goalName" autocomplete="off">
       </div>
       <div class="form__group">
         <label >Goal Type</label>
-        <select name="goal_type" v-model="goal_type">
-          <option v-for="(type, idx) in goal_types" :value="type" :key="idx">
+        <select name="goalType" v-model="goalType">
+          <option v-for="(type, idx) in goalTypes" :value="type" :key="idx">
             {{ type }}
           </option>
         </select>
       </div>
       <div class="form__group">
         <label>Activity</label>
-        <select name="goal_activity" v-model="goal_activity">
-          <option v-for="type in goal_activities" :value="type" :key="type">
+        <select name="goalActivity" v-model="goalActivity">
+          <option v-for="type in goalActivities" :value="type" :key="type">
             {{ type }}
           </option>
         </select>
@@ -35,8 +35,8 @@
         wrapper_classes="form__group">
       </DatePicker>
       <div class="form__group">
-        <label for="goal_target">Target</label>
-        <input id="goal_target" name="goal_target" v-model="goal_target" autocomplete="off" />
+        <label for="goalTarget">Target</label>
+        <input id="goalTarget" name="goalTarget" v-model="goalTarget" autocomplete="off" />
       </div>
       <button>submit</button>
     </form>
@@ -54,22 +54,22 @@ export default {
   },
   data () {
     return {
-      goal_target: '',
-      goal_types: [
+      goalTarget: '',
+      goalTypes: [
         'distance',
         'time',
         'pace',
       ],
-      goal_activities: [
+      goalActivities: [
         'Run',
         'Ride',
         'Swim',
       ],
-      goal_name: "Goal",
-      goal_activity: 'Run',
-      goal_type: 'distance',
-      goal_start: new Date().toISOString().split('T')[0],
-      goal_end: new Date().toISOString().split('T')[0],
+      goalName: "Goal",
+      goalActivity: 'Run',
+      goalType: 'distance',
+      goalStart: new Date().toISOString().split('T')[0],
+      goalEnd: new Date().toISOString().split('T')[0],
       url: 'http://localhost:5000/api/goals',
     }
   },
@@ -81,28 +81,37 @@ export default {
   },
   methods: {
     startDatePicked (date) {
-      this.goal_start = date.toISOString().split('T')[0]
+      this.goalStart = date.toISOString().split('T')[0]
     },
     endDatePicked (date) {
-      this.goal_end = date.toISOString().split('T')[0]
+      this.goalEnd = date.toISOString().split('T')[0]
     },
     formSubmit () {
+      let target_m = 0
+      if (this.goalType === 'distance') {
+        target_m = (this.goalTarget / 0.000621371) // convert to meters
+      } else if (this.goalType === 'time') {
+        target_m = (this.goalTarget / 60 / 60) // convert to seconds
+      }
       let data = {
-        name: this.goal_name,
+        name: this.goalName,
         userid: this.userId,
-        target: this.goal_target,
-        type: this.goal_type,
-        start: this.goal_start,
-        end: this.goal_end,
+        target: this.goalTarget,
+        target_m: target_m,
+        type: this.goalType,
+        start: this.goalStart,
+        end: this.goalEnd,
+        activity: this.goalActivity,
         active: true,
       }
+      console.log("post data", data)
       let options = this.POST
-      options[body] = JSON.stringify(data),
-      
+      options.body = JSON.stringify(data),
       fetch(this.url, options)
+        .then(res => res.json())
         .then(res => {
           console.log(res)
-          return res.json()
+          // emit event to notify parent of new goal
         })
     },
   },

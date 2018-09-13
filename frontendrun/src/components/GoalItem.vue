@@ -12,7 +12,7 @@
     </div>
     <div v-if="goal.progress && goal.type === 'distance'" class="goal__progress">
       <span class="goal__progress_item">
-        {{ goal.progress.current_distance | number | units }}
+        {{ goal.progress.current_distance | distance | units }}
       </span>
       <span class="goal__progress_item">
         {{ goal.progress.percent_complete | number(0) }}% Completed
@@ -40,10 +40,10 @@ export default {
       userId: 'getUserId',
     }),
     start_date () {
-      return new Date(this.goal.start)
+      return new Date(`${this.goal.start}T00:00:00`)
     },
     end_date () {
-      return new Date(this.goal.end)
+      return new Date(`${this.goal.end}T00:00:00`)
     },
     units () {
       if (this.goal.type == 'distance') {
@@ -67,7 +67,7 @@ export default {
     },
   },
   created () {
-    console.log(this.goal)
+    console.log('goal',this.goal)
   }
 }
 </script>

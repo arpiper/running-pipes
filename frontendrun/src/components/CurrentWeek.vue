@@ -1,8 +1,10 @@
 <template>
   <div class="content__item">
-    <span v-if="loading" class="loading-bar">
-    </span>
-    <div v-if="!loading" class="content__item_header">
+    <div style="display:none;" class="loading__bar_container">
+      <span  class="loading__bar">
+      </span>
+    </div>
+    <div  class="content__item_header">
       <span class="block__current_week">
         {{ weekStart | date('%b%d') }} - {{ weekEnd | date('%b%d') }}
       </span>
@@ -13,7 +15,11 @@
         <span class="content__item_dist">{{ totals.dist | distance | units }}</span>
       </div>
       <div class="content__item_main_right">
-        <GoalItemSmall v-for="g in implicitGoals" :key="g._id" :goal="g">
+        <GoalItemSmall 
+          v-for="g in implicitGoals" 
+          :key="g._id" 
+          :goal="g"
+          @loaded="childLoaded($event)">
         </GoalItemSmall>
       </div>
     </div>
@@ -82,45 +88,47 @@ export default {
             this.setWeek(res.data.activities)
             this.activities = res.data.activities
             this.setTotals()
-            this.loading = false
           })
       }
     },
     setTotals () {
+      console.log('activities', this.activities)
       this.activities.forEach((a) => {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
       })
     },
     checkImplicitGoals () {
-      // 86400000 milliseconds = 1 day
-      this.getGoals.forEach((goal) => {
-        let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
-        let ig = {name: goal.name, _id: goal._id}
-        if (goal.type === 'distance') {
-          this.implicitGoals.push({...ig, ...this.distanceGoal(goal, t)})
-        } else if (goal.type === 'time') {
-          this.implicitGoals.push({...ig, ...this.timeGoal(goal, t)})
-        } else {
-          this.implicitGoals.push({...ig, ...this.paceGoal(goal, t)})
-        }
-      })
+      this.implicitGoals = this.getGoals
+        .filter((goal) => goal.active)
+        .map((goal) => {
+          // 86400000 milliseconds = 1 day
+          let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
+          let ig = {name: goal.name, _id: goal._id}
+          if (goal.type === 'distance') {
+            return {...ig, ...this.distanceGoal(goal, t)}
+          } else if (goal.type === 'time') {
+            return {...ig, ...this.timeGoal(goal, t)}
+          }
+          return {...ig, ...this.paceGoal(goal, t)}
+        })
     },
     distanceGoal (goal, time) {
-      let r = goal.target - goal.progress.current_distance
-      console.log(this.totals.dist, r, time)
+      let r = goal.target_m - goal.progress.current_distance
+      console.log('this weeks dist',this.totals.dist, 'dist remain', r, 'time remain',time)
+      console.log('percent', this.totals.dist / ((r / time) * 7))
       return {
         perDay: r / time,
         perWeek: (r / time) * 7,
-        percent: this.totals.dist / ((r / time) * 7),
+        percent: 100 * (this.totals.dist / ((r / time) * 7)),
       }
     },
     timeGoal (goal, time) {
-      let r = goal.target - goal.progress.current_duration
+      let r = goal.target_m - goal.progress.current_duration
       return {
         perDay: r / time,
         perWeek: (r / time) * 7,
-        percent: this.totals.duration / ((r / time) * 7),
+        percent: 100 * (this.totals.duration / ((r / time) * 7)),
       }
     },
     paceGoal (goal, time_remain) {
@@ -128,6 +136,10 @@ export default {
         perDay: goal.target,
         percent: time_remain,
       }
+    },
+    childLoaded (evt) {
+      console.log('loaded', evt)
+      this.loading = false
     },
   },
   created () {

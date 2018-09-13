@@ -17,6 +17,7 @@ const store = new Vuex.Store({
     post_opts: {
       method: 'POST',
       //credentials: 'include',
+      body: '',
       mode: 'cors',
       headers: {
         'content-type': 'application/json'

@@ -1,6 +1,10 @@
 :root {
   --color-main: #4CAF50;
-  --color-secondary: #98541D;
+  --color-main-light: #80E27E;
+  --color-main-dark: #087F23;
+  --color-secondary: #37474F;
+  --color-secondary-light: #62727B;
+  --color-secondary-dark: #102027;
   --color-gray-dark: #3C463C;
   --color-gray-medium: #9E9E9E;
   --color-gray-light: #f3f6f6;
@@ -27,6 +31,7 @@ body {
   box-shadow: 0px 8px 24px rgba(13, 13, 18, 0.04);
   margin-top: 10px;
   margin-bottom: 5px;
+  position: relative;
 }
 .content__item_header {
   width: 100%;
@@ -100,24 +105,34 @@ body {
   width: 1.5em;
   transition: transform 0.5s;
 }
-.loading-bar {
+.loading__bar_container { 
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+}
+.loading__bar {
   height: 20px;
   width: 200px;
   display: block;
   background-color: var(--color-gray-light);
   margin: 0 auto;
   position: relative;
-  top: 50%;
+  /*top: 50%;*/
   opacity: 1;
   transition: opacity 0.25s;
 }
-.loading-bar.show {
+.loading__bar.show {
   opacity: 1;
 }
-.loading-bar:after {
+.loading__bar:after {
   content: '';
   animation-name: slider;
-  animation-duration: .5s;
+  animation-duration: 2s;
   animation-iteration-count: infinite;
   background-color: var(--color-secondary);
   height: 20px;
