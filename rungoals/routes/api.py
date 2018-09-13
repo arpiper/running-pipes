@@ -113,10 +113,24 @@ def get_goals_month(year, month):
         },
     })
 
-@api_bp.route('/goals', methods=['POST'])
-def create_new_goal(userid, goal):
-    db = get_db()
-    user = db.users.find_one({'id': userid})
+@api_bp.route('/goals/refresh', methods=['POST'])
+def update_goals_progress():
+    data = request.get_json()
+    if 'userId' not in data:
+        return jsonify({
+            'message': 'error updated goals, no userid'
+        })
+    goal_list = goals.get_many(data['userId'])
+    updated = []
+    for goal in goal_list:
+        updated.append(goals.update_goal(goal))
+    return jsonify({
+        'message': 'goals refreshed',
+        'data': {
+            'goals': updated,
+        },
+    })
+
 
 @api_bp.route('/stats/<int:athleteid>', methods=['GET'])
 def get_stats(athleteid):

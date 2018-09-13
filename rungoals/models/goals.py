@@ -71,6 +71,18 @@ class Goals(dict):
 
         return self.save(goal)
 
+    def update_goal(self, goal):
+        '''
+        Update the goal with the current progress.
+
+        :param dict goal: the goal to update.
+        :return: str goal id
+        '''
+        progress = self.update_goal_progress(goal)
+        goal['progress'] = progress
+        if goal['progress']['percent_complete'] == 100:
+            goal['active'] = False
+        return self.save(goal)
 
     def update_goal_progress(self, goal):
         '''
@@ -99,10 +111,11 @@ class Goals(dict):
             all_activities.extend(activities)
             # increment the page for the next call to Strava API
             page += 1
+        # get the aggregate of all activities towards the goal
         if 'progress' in goal.keys():
             return self.aggregate_activities(all_activities, 
-                goal['target'], goal['activity'], goal['type'], goal['progress'])
-        return self.aggregate_activities(all_activities, goal['target'], 
+                goal['target_m'], goal['activity'], goal['type'], goal['progress'])
+        return self.aggregate_activities(all_activities, goal['target_m'], 
             goal['activity'], goal['type'])
         
 
@@ -133,7 +146,7 @@ class Goals(dict):
             }
         for act in activities:
             # guard against the wrong activities
-            if act['type'] != activity_type:
+            if act['type'] != act_type:
                 continue 
 
             # strip the Z. python datetime doesn't like it
@@ -150,7 +163,7 @@ class Goals(dict):
             p['current_duration'] += act['moving_time'] # time in seconds
             p['activities'].append({
                 'id': act['id'],
-                'distance': act['distance'] * 0.000621371,
+                'distance': act['distance'],
                 'date': act['start_date_local'],
                 'moving_time': act['moving_time'],
             })
@@ -159,4 +172,6 @@ class Goals(dict):
             p['percent_complete'] = 100 * (p['current_distance'] / target)
         elif goal_type == 'time': 
             p['percent_complete'] = 100 * (p['current_duration'] / target)
+        if p['percent_complete'] > 100:
+            p['percent_complete'] = 100
         return p
