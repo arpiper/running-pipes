@@ -59,6 +59,9 @@ body {
   flex-wrap: wrap;
   justify-content: space-around;
 }
+.item__header {
+  margin: 0;
+}
 .goal__item_size_small {
   background-color: var(--color-gray-light);
   padding: 5px 15px;
