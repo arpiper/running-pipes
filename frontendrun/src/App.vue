@@ -4,8 +4,12 @@
       Header
     </header>
     <div class="app__body">
-      <CurrentWeek></CurrentWeek>
-      <GoalsList></GoalsList>
+      <div v-if="loading" class="loading__bar_container">
+        <span  class="loading__bar">
+        </span>
+      </div>
+      <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
+      <GoalsList @loaded='goalsLoaded()'></GoalsList>
     </div>
     <div class="app__sidebar">
       <AthleteInfo></AthleteInfo>
@@ -37,6 +41,9 @@ export default {
     return {
       userId: undefined,
       addGoal: false,
+      loading: true,
+      currentWeek: false,
+      goals: false,
     }
   },
   components: {
@@ -52,6 +59,16 @@ export default {
       'getAthlete',
       'api',
     ]),
+    mainComponents () {
+      return this.currentWeek && this.goals
+    }
+  },
+  watch: {
+    mainComponents (value) {
+      if (value) {
+        this.loading = false
+      }
+    }
   },
   methods: {
     ...mapMutations([
@@ -76,6 +93,12 @@ export default {
     },
     toggleAdd () {
       this.addGoal = !this.addGoal
+    },
+    currentWeekLoaded () {
+      this.currentWeek = true
+    },
+    goalsLoaded () {
+      this.goals = true
     },
   },
   created () {

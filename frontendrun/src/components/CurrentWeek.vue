@@ -1,12 +1,14 @@
 <template>
   <div class="content__item">
-    <div style="display:none;" class="loading__bar_container">
+    <div style="display: none;" class="loading__bar_container">
       <span  class="loading__bar">
       </span>
     </div>
     <div  class="content__item_header">
       <span class="block__current_week">
-        {{ weekStart | date('%b%d') }} - {{ weekEnd | date('%b%d') }}
+        <h2 class="item__header">
+          {{ weekStart | date('%b%d') }} - {{ weekEnd | date('%b%d') }}
+        </h2>
       </span>
     </div>
     <div class="content__item_main">
@@ -19,7 +21,7 @@
           v-for="g in implicitGoals" 
           :key="g._id" 
           :goal="g"
-          @loaded="childLoaded($event)">
+          @loaded="childLoaded()">
         </GoalItemSmall>
       </div>
     </div>
@@ -115,8 +117,7 @@ export default {
     },
     distanceGoal (goal, time) {
       let r = goal.target_m - goal.progress.current_distance
-      console.log('this weeks dist',this.totals.dist, 'dist remain', r, 'time remain',time)
-      console.log('percent', this.totals.dist / ((r / time) * 7))
+      console.log('this weeks dist',this.totals.dist, 'dist remain', r, 'time remain',time, 'percent', this.totals.dist / ((r / time) * 7))
       return {
         perDay: r / time,
         perWeek: (r / time) * 7,
@@ -137,9 +138,9 @@ export default {
         percent: time_remain,
       }
     },
-    childLoaded (evt) {
-      console.log('loaded', evt)
+    childLoaded () {
       this.loading = false
+      this.$emit('loaded')
     },
   },
   created () {

@@ -57,6 +57,7 @@ export default {
   created () {
   },
   mounted () {
+    this.$emit('loaded')
   },
   components: {
     GoalItem,
