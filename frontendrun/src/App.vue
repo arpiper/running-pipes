@@ -21,9 +21,7 @@
         </div>
       </div>
     </div>
-    <footer class="app__footer">
-      Footer
-    </footer>
+    <Footer></Footer> 
   </div>
 </template>
 
@@ -34,6 +32,7 @@ import AddGoal from './components/AddGoal.vue'
 import GoalsList from './components/GoalsList.vue'
 import ButtonCmp from './components/ButtonCmp.vue'
 import CurrentWeek from './components/CurrentWeek.vue'
+import Footer from './components/Footer.vue'
 
 export default {
   name: 'app',
@@ -52,6 +51,7 @@ export default {
     GoalsList,
     ButtonCmp,
     CurrentWeek,
+    Footer,
   },
   computed: {
     ...mapGetters([
