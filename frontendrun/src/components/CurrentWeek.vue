@@ -94,7 +94,6 @@ export default {
       }
     },
     setTotals () {
-      console.log('activities', this.activities)
       this.activities.forEach((a) => {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
@@ -105,38 +104,24 @@ export default {
         .filter((goal) => goal.active)
         .map((goal) => {
           // 86400000 milliseconds = 1 day
+          let r = 0
+          let total = this.totals.dist
           let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
-          let ig = {name: goal.name, _id: goal._id}
-          if (goal.type === 'distance') {
-            return {...ig, ...this.distanceGoal(goal, t)}
-          } else if (goal.type === 'time') {
-            return {...ig, ...this.timeGoal(goal, t)}
+          let ig = {
+            name: goal.name, 
+            _id: goal._id
           }
-          return {...ig, ...this.paceGoal(goal, t)}
+          if (goal.type === 'distance') {
+            r = goal.target_m - goal.progress.current_distance
+          } else if (goal.type === 'time') {
+            r = goal.target_m - goal.progress.current_duration
+            total = this.totals.duration
+          }
+          ig['perDay'] = r / t
+          ig['perWeek'] = (r / t) * 7
+          ig['percent'] = 100 * (total / (ig['perWeek']))
+          return ig
         })
-    },
-    distanceGoal (goal, time) {
-      let r = goal.target_m - goal.progress.current_distance
-      console.log('this weeks dist',this.totals.dist, 'dist remain', r, 'time remain',time, 'percent', this.totals.dist / ((r / time) * 7))
-      return {
-        perDay: r / time,
-        perWeek: (r / time) * 7,
-        percent: 100 * (this.totals.dist / ((r / time) * 7)),
-      }
-    },
-    timeGoal (goal, time) {
-      let r = goal.target_m - goal.progress.current_duration
-      return {
-        perDay: r / time,
-        perWeek: (r / time) * 7,
-        percent: 100 * (this.totals.duration / ((r / time) * 7)),
-      }
-    },
-    paceGoal (goal, time_remain) {
-      return {
-        perDay: goal.target,
-        percent: time_remain,
-      }
     },
     childLoaded () {
       this.loading = false
