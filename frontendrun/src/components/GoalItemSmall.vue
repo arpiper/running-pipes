@@ -53,38 +53,40 @@ export default {
       this.svg = d3.select(`#${this.goalId}`).append('svg')
         .attr('viewBox', `0 0 ${this.or * 2} ${this.or * 2}`)
         //.attr('preserveAspectRatio', 'none')
+      // create the svg element
       let g = this.svg.append('g')
         .attr('class', 'goal-progress')
         .attr('transform', `translate(${this.or}, ${this.or})`)
+      // add a 'g' container for the background arc
       let g_back = this.svg.append('g')
         .attr('class', 'arc-background')
         .attr('transform', `translate(${this.or}, ${this.or})`)
-
-      let arc0 = d3.arc()
-        .innerRadius(this.ir)
-        .outerRadius(this.or)
-        .startAngle(0)
-
+      // create an arc function for the background
       let arc = d3.arc()({
         innerRadius: this.ir,
         outerRadius: this.or,
         startAngle: 0,
         endAngle: this.tau,
       })
-
+      // draw the background arc
       g_back.append('path')
         .attr('fill', '#9E9E9E4D')
         .attr('d', arc)
-
+      // create an arc function for the implicit goal progress
+      let arc0 = d3.arc()
+        .innerRadius(this.ir)
+        .outerRadius(this.or)
+        .startAngle(0)
+      // draw the progress arc in the initial position of 0
       let start = g.append('path')
         .datum({endAngle: 0})
         .attr('fill', this.color)
         .attr('d', arc0)
-      
+      // transition the arc from 0 to the current progress
       start.transition()
         .duration(3500)
         .attrTween('d', arcTween(this.angle))
-
+      // helper function to draw the inbetween steps of the transition
       function arcTween (newAngle) {
         return (d) => {
           var interpolate = d3.interpolate(d.endAngle, newAngle)
@@ -101,19 +103,22 @@ export default {
     countPercent () {
       let step = 2000 / this.goal.percent
       let timer = setInterval(() => {
-        this.percent++
         if (this.$refs.percent.offsetWidth > this.leftPercent) {
           this.leftPercent = this.$refs.percent.offsetWidth
         }
-        if (this.percent === 100 || this.percent === Math.round(this.goal.percent)) {
+        if (this.percent === Math.round(this.goal.percent)) {
           clearInterval(timer)
         }
+        this.percent++
       }, step)
     },
   },
   mounted () {
+    console.log('goalsmall', this.goal)
     this.drawCircle()
-    this.countPercent()
+    if (this.goal.percent > 0) {
+      this.countPercent()
+    }
     this.$emit('loaded')
   },
 }
