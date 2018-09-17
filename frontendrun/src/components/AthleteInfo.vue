@@ -1,11 +1,22 @@
 <template>
-  <div class="block__athlete" v-if="athlete">
-    <div class="block__info">
-      <span>  
-        <img :src="athlete.profile_medium" />
-      </span>
-      <span>{{ athlete.firstname }}</span>
-      <span>{{ athlete.lastname }}</span>
+  <div>
+    <div class="block__athlete" v-if="athlete">
+      <div class="block__info">
+        <span>  
+          <img :src="athlete.profile_medium" />
+        </span>
+        <span>{{ athlete.firstname }}</span>
+        <span>{{ athlete.lastname }}</span>
+      </div>
+    </div>
+    <div v-else>
+      <div class="block__athlete_auth">
+        <span class="block_athlete_auth_button">
+          <a :href="oauth">
+            <img :src="connectStrava" alt="Connect with Strava">
+          </a>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -18,6 +29,8 @@ export default {
   data () {
     return {
       stats: undefined,
+      connectStrava: require('@/assets/btn_strava_connectwith_orange.png'),
+      oauth: "https://www.strava.com/oauth/authorize?client_id=27099&response_type=code"
     }
   },
   computed: {

@@ -59,6 +59,9 @@ export default {
       'getAthlete',
       'api',
     ]),
+    ...mapGetters({
+      'GET': 'getGetOpts',
+    }),
     mainComponents () {
       return this.currentWeek && this.goals
     }
@@ -75,14 +78,7 @@ export default {
       'setAthlete',
     ]),
     getAuthUser () {
-      let opts = {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'content-type': 'application/json',
-        },
-      }
-      fetch(`${this.api}/athlete`, opts)
+      fetch(`${this.api}/athlete`, this.opts)
         .then(response => {
           return response.json()
         })
