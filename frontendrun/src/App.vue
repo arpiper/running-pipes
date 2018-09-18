@@ -3,15 +3,8 @@
     <header class="app__header">
       Header
     </header>
-    <div class="app__body">
-      <div v-if="loading" class="loading__bar_container">
-        <span  class="loading__bar">
-        </span>
-      </div>
-      <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
-      <GoalsList @loaded='goalsLoaded()'></GoalsList>
-    </div>
-    <div class="app__sidebar">
+    <router-view></router-view>
+    <div class="app__sidebar" v-if="getUserId">
       <AthleteInfo></AthleteInfo>
       <div class="goals__create">
         <ButtonCmp :toggle='addGoal' @click.native="toggleAdd()">
@@ -27,78 +20,43 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import AthleteInfo from './components/AthleteInfo.vue'
 import AddGoal from './components/AddGoal.vue'
-import GoalsList from './components/GoalsList.vue'
+import AthleteInfo from './components/AthleteInfo.vue'
 import ButtonCmp from './components/ButtonCmp.vue'
-import CurrentWeek from './components/CurrentWeek.vue'
 import Footer from './components/Footer.vue'
 
 export default {
   name: 'app',
   data () {
     return {
-      userId: undefined,
-      addGoal: false,
-      loading: true,
-      currentWeek: false,
-      goals: false,
     }
   },
   components: {
-    AthleteInfo,
     AddGoal,
-    GoalsList,
+    AthleteInfo,
     ButtonCmp,
-    CurrentWeek,
     Footer,
   },
   computed: {
     ...mapGetters([
       'getUserId',
       'getAthlete',
+      'getToken',
       'api',
     ]),
-    ...mapGetters({
-      'GET': 'getGetOpts',
-    }),
-    mainComponents () {
-      return this.currentWeek && this.goals
-    }
   },
   watch: {
-    mainComponents (value) {
-      if (value) {
-        this.loading = false
-      }
-    }
   },
   methods: {
     ...mapMutations([
       'setAthlete',
+      'setToken',
     ]),
-    getAuthUser () {
-      fetch(`${this.api}/athlete`, this.opts)
-        .then(response => {
-          return response.json()
-        })
-        .then(response => {
-          this.setAthlete(response.data.athlete)
-          this.userId = response.data.athlete.id
-        })
-    },
     toggleAdd () {
       this.addGoal = !this.addGoal
     },
-    currentWeekLoaded () {
-      this.currentWeek = true
-    },
-    goalsLoaded () {
-      this.goals = true
-    },
   },
   created () {
-    this.getAuthUser()
   },
 }
 </script>
@@ -130,6 +88,7 @@ export default {
 .app__body {
   grid-area: body;
   padding: 10px 0;
+  position: relative;
 }
 .app__sidebar {
   grid-area: sidebar;
