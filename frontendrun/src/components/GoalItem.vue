@@ -67,7 +67,6 @@ export default {
     },
   },
   created () {
-    console.log('goal',this.goal)
   }
 }
 </script>

@@ -114,7 +114,6 @@ export default {
     },
   },
   mounted () {
-    console.log('goalsmall', this.goal)
     this.drawCircle()
     if (this.goal.percent > 0) {
       this.countPercent()
