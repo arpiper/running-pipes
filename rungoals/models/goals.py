@@ -7,6 +7,9 @@ class Goals(dict):
     connnection = None
     strava = None
 
+    def __init__(self, strava_token):
+        self.strava = get_strava(strava_token)
+
     def init_app(self, connection):
         '''
         Initialize the Goal class
@@ -14,7 +17,7 @@ class Goals(dict):
         :param Mongo.DB connection: Mongo Database connection
         '''
         self.connection = connection.goals
-        self.strava = get_strava()
+        #self.strava = get_strava(token)
 
     def save(self, goal):
         '''

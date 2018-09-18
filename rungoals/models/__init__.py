@@ -1,6 +1,6 @@
 from .users import Users
 from .goals import Goals
-from flask import g
+from flask import g, request
 from ..services.mdb import get_db
 
 def init_app(app):

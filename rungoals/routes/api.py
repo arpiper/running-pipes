@@ -2,6 +2,7 @@ import calendar
 from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app
 from werkzeug.exceptions import abort
 from bson import ObjectId
+import functools
 
 from .auth import login_required
 from ..services.mdb import get_db
@@ -9,18 +10,62 @@ from ..services.stravaAPI import get_strava
 from ..models.goals import Goals
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
-goals = Goals()
+#goals = Goals()
+
+
+# decorator
+def set_goals(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        auth = request.authorization
+        func(*args, **kwargs)
+    return wrapper
+
+
+@api_bp.route('/auth', methods=['POST'])
+def get_token():
+    cs = current_app.config['STRAVA']['CLIENT_SECRET']
+    cid = current_app.config['STRAVA']['CLIENT_ID']
+    data = request.get_json()
+    if 'code' not in data.keys():
+        return jsonify({
+            'message': 'invalid code'
+        }), 401
+    r = requests.post(
+        'https://www.strava.com/oauth/token',
+        data = {
+            'client_id': cid,
+            'client_secret': cs,
+            'code': data['code']
+        }
+    )
+    return j.json()
 
 @api_bp.route('/athlete', methods=['GET'])
 def get_athlete():
-    st = get_strava()
-    athlete = st.get_auth_athlete()
+    auth = request.authorization
+    print(auth)
+    if auth is not None:
+        st = get_strava(auth)
+        athlete, status = st.get_auth_athlete()
+        r = {}
+        if status == 401:
+            r['message'] = athlete['message']
+            r['data'] = {
+                'errors': athlete['errors']
+            }
+        else: 
+            r['message'] = f'Athlete information retrieved'
+            r['data'] = {
+                'athlete': athlete
+            }
+        return jsonify(r), status
     return jsonify({
-        'message': 'Retreived Strava athlete',
+        'message': 'Invalid authorization token',
         'data': {
-            'athlete': athlete,
+            'errors': 'invalid token',
         }
-    })
+    }), 401
 
 @api_bp.route('/data', methods=['GET'])
 def get_data():
@@ -33,7 +78,8 @@ def get_data():
 
 @api_bp.route('/activities', methods=['GET'])
 def get_activities():
-    st = get_strava()
+    auth = request.authorization
+    st = get_strava(auth)
     data = st.get_activities()
     return jsonify({
         'message': 'this weeks activites',
@@ -52,7 +98,9 @@ def get_goals():
                     'error': 'no user id given',
                 }
             })
-        st = get_strava()
+        auth = request.authorization
+        st = get_strava(auth)
+        goals = Goals()
         data = st.get_activities_by_month()
         goal_list = goals.get_many(request.args['userid'])
         return jsonify({
@@ -89,7 +137,9 @@ def get_goal(id):
 
 @api_bp.route('/goals/<int:year>', methods=['GET'])
 def get_goals_year(year):
-    data = get_strava().get_activities_by_year(year)
+    auth = request.authorization
+    st = get_strava(auth)
+    data = st.get_activities_by_year(year)
     return jsonify({
         'message': f'get all running activities for {year}',
         'data': {
@@ -100,7 +150,9 @@ def get_goals_year(year):
 
 @api_bp.route('/goals/<int:year>/<int:month>', methods=['GET'])
 def get_goals_month(year, month):
-    data = get_strava().get_activities_by_month(year, month)
+    auth = request.authorization
+    st = get_strava(auth)
+    data = st.get_activities_by_month(year, month)
     return jsonify({
         'message': f'get all running activities for {calendar.month_name[month]} {year}',
         'data': {
@@ -131,9 +183,9 @@ def update_goals_progress():
         },
     })
 
-
 @api_bp.route('/stats/<int:athleteid>', methods=['GET'])
 def get_stats(athleteid):
+    auth = request.authorization
     st = get_strava()
     data = st.get_athlete_stats(athleteid)
     return jsonify({
@@ -142,3 +194,5 @@ def get_stats(athleteid):
             'stats': data,
         }
     })
+
+

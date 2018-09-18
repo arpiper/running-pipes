@@ -3,9 +3,9 @@ from flask import current_app, g
 
 import requests
 
-def get_strava():
+def get_strava(token):
     if 'strava' not in g:
-        token = current_app.config['STRAVA']['ACCESS_TOKEN']
+        #token = current_app.config['STRAVA']['ACCESS_TOKEN']
         g.strava = StravaAPI(token=token)
     return g.strava
 
@@ -29,7 +29,7 @@ class StravaAPI():
         '''
         url = f'{self.api_url}/athlete'
         r = requests.get(url, headers=self.headers)
-        return r.json()
+        return r.json(), r.status_code
 
     def get_athlete_stats(self, id):
         '''
