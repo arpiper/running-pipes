@@ -26,6 +26,7 @@ const store = new Vuex.Store({
     goals: undefined,
     stats: undefined,
     current_week: undefined,
+    token: undefined,
   },
   getters: {
     api (state) {
@@ -52,6 +53,9 @@ const store = new Vuex.Store({
     getWeek (state) {
       return state.current_week
     },
+    getToken (state) {
+      return state.token
+    },
   },
   mutations: {
     setAthlete (state, athlete) {
@@ -66,6 +70,9 @@ const store = new Vuex.Store({
     },
     setWeek (state, activities) {
       state.current_week = activities
+    },
+    setToken (state, token) {
+      state.token = token
     },
   },
 })
