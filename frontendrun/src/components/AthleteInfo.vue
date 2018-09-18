@@ -9,15 +9,6 @@
         <span>{{ athlete.lastname }}</span>
       </div>
     </div>
-    <div v-else>
-      <div class="block__athlete_auth">
-        <span class="block_athlete_auth_button">
-          <a :href="oauthURI">
-            <img :src="connectStrava" alt="Connect with Strava">
-          </a>
-        </span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -29,14 +20,6 @@ export default {
   data () {
     return {
       stats: undefined,
-      connectStrava: require('@/assets/btn_strava_connectwith_orange.png'),
-      oauthUrl: 'https://www.strava.com/oauth/authorize?',
-      oauth: {
-        client_id: '27099',
-        response_type: 'code',
-        redirect_uri: 'http://localhost',
-        approval_prompt: 'force',
-      },
     }
   },
   computed: {
@@ -47,18 +30,6 @@ export default {
       GET: 'getGetOpts',
       api: 'api',
     }),
-    oauthURI () {
-      let s = this.oauthUrl
-      for (var key of this.oauth) {
-        if (s.slice(-1) === '?') {
-          s += `${key}=${this.oauth[key]}`
-        } else {
-          s += `&${key}=${this.oauth[key]}`
-        {
-      }
-      console.log(s)
-      return s
-    },
   },
   watch: {
     userId (id) {
