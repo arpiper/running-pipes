@@ -1,5 +1,5 @@
 import calendar
-from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app
+from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app, abort
 from werkzeug.exceptions import abort
 from bson import ObjectId
 import functools
@@ -10,16 +10,17 @@ from ..services.stravaAPI import get_strava
 from ..models.goals import Goals
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
-#goals = Goals()
-
+goals = Goals()
+test = 'before'
 
 # decorator
-def set_goals(func):
+def validate_auth(func):
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        auth = request.authorization
-        func(*args, **kwargs)
-    return wrapper
+    def wrapper_validate_auth(*args, **kwargs):
+        if request.authorization is None:
+            abort(401)
+        return func(*args, **kwargs)
+    return wrapper_validate_auth
 
 
 @api_bp.route('/auth', methods=['POST'])
@@ -42,41 +43,40 @@ def get_token():
     return j.json()
 
 @api_bp.route('/athlete', methods=['GET'])
+@validate_auth
 def get_athlete():
     auth = request.authorization
-    print(auth)
-    if auth is not None:
-        st = get_strava(auth)
-        athlete, status = st.get_auth_athlete()
-        r = {}
-        if status == 401:
-            r['message'] = athlete['message']
-            r['data'] = {
-                'errors': athlete['errors']
-            }
-        else: 
-            r['message'] = f'Athlete information retrieved'
-            r['data'] = {
-                'athlete': athlete
-            }
-        return jsonify(r), status
-    return jsonify({
-        'message': 'Invalid authorization token',
-        'data': {
-            'errors': 'invalid token',
+    st = get_strava(auth)
+    athlete, status = st.get_auth_athlete()
+    r = {}
+    # Strava api returned 401
+    if status == 401:
+        r['message'] = athlete['message']
+        r['data'] = {
+            'errors': athlete['errors']
         }
-    }), 401
+    else: 
+        r['message'] = f'Athlete information retrieved'
+        r['data'] = {
+            'athlete': athlete
+        }
+    return jsonify(r), status
 
-@api_bp.route('/data', methods=['GET'])
-def get_data():
-    db = get_db()
+@api_bp.route('/data/<id>', methods=['GET'])
+@validate_auth
+def get_data(id):
+    g = goals.get_one(id)
+    print(test)
     return jsonify({
         'message': 'api get datae',
-        'data': 'THE DATA',
-        'db': db.collection_names(),
+        'data': {
+            'sti': 'THE DATA',
+            'goal': g
+        }
     })
 
 @api_bp.route('/activities', methods=['GET'])
+@validate_auth
 def get_activities():
     auth = request.authorization
     st = get_strava(auth)
@@ -89,6 +89,7 @@ def get_activities():
     })
 
 @api_bp.route('/goals', methods=['GET', 'POST'])
+@validate_auth
 def get_goals():
     if request.method == 'GET':
         if 'userid' not in request.args.keys():
@@ -101,13 +102,12 @@ def get_goals():
         auth = request.authorization
         st = get_strava(auth)
         goals = Goals()
-        data = st.get_activities_by_month()
+        #data = st.get_activities_by_month()
         goal_list = goals.get_many(request.args['userid'])
         return jsonify({
             'message': 'get all the running goals',
             'data': {
                 'goals': goal_list,
-                'activities': data,
             },
         })
     elif request.method == 'POST':
@@ -117,7 +117,8 @@ def get_goals():
                 'message': 'invalid data given',
             })
         #goalid = goals.save(data)
-        goalid = goals.create_goal(data)
+        #goalid = goals.create_goal(data)
+        goalid = Goal(data).save()
         return jsonify({
             'message': 'new goal added',
             'data': {
@@ -125,8 +126,10 @@ def get_goals():
             },
         })
 
-@api_bp.route('/goals/<int:id>', methods=['GET'])
+@api_bp.route('/goals/<id>', methods=['GET'])
+@validate_auth
 def get_goal(id):
+    goal = goals.get_one(id)
     return jsonify({
         'message': 'get a single running goal with the id',
         'data': {
@@ -136,6 +139,7 @@ def get_goal(id):
     })
 
 @api_bp.route('/goals/<int:year>', methods=['GET'])
+@validate_auth
 def get_goals_year(year):
     auth = request.authorization
     st = get_strava(auth)

@@ -2,13 +2,15 @@ from bson import ObjectId
 from datetime import datetime as dt
 
 from ..services.stravaAPI import get_strava
+from .goal import Goal
 
 class Goals(dict):
     connnection = None
     strava = None
 
-    def __init__(self, strava_token):
-        self.strava = get_strava(strava_token)
+    def __init__(self):
+        #self.strava = get_strava()
+        super()
 
     def init_app(self, connection):
         '''
@@ -41,9 +43,11 @@ class Goals(dict):
         :param str goalid: MongoDB goal id string
         :return: goal dict
         '''
-        return self.connection.find_one({
+        g = self.connection.find_one({
             '_id': ObjectId(goalid)
         })
+        #goal = Goal(g, self.connection).to_dict()
+        return g
 
     def get_many(self, userid):
         '''
@@ -87,94 +91,47 @@ class Goals(dict):
             goal['active'] = False
         return self.save(goal)
 
-    def update_goal_progress(self, goal):
+    def get_goals_by_month(self, year=None, month=None):
         '''
-        Grab the activities within the goal dates and update the progress.
+        Retrieve goals that occur in the given month
 
-        :param dict goal: goal dictionary
-        :return: goal
+        :param int year: the year to search
+        :param int month: the month to search
+        :return: list of the goals
         '''
-        start = dt.fromisoformat(goal['start'])
-        if 'progress' in goal.keys():
-            start = dt.fromisoformat(goal['progress']['most_recent']['date'])
-        end = dt.fromisoformat(goal['end'])
-        page = 1
-        all_activities = []
-        while 1:
-            # fetch the activities from the Strava API
-            activities = self.strava.get_activities(
-                before=end.timestamp(),
-                after=start.timestamp(),
-                page=page,
-                per_page=50
-            )
-            # check if the result is empty
-            if len(activities) == 0:
-                break
-            all_activities.extend(activities)
-            # increment the page for the next call to Strava API
-            page += 1
-        # get the aggregate of all activities towards the goal
-        if 'progress' in goal.keys():
-            return self.aggregate_activities(all_activities, 
-                goal['target_m'], goal['activity'], goal['type'], goal['progress'])
-        return self.aggregate_activities(all_activities, goal['target_m'], 
-            goal['activity'], goal['type'])
-        
+        today = dt.now()
+        if year is None:
+            year = today.year
+        if month is None:
+            month = today.month
+        start = dt(year, month, 1, 0, 0)
+        end = dt(year, month + 1, 1, 0, 0)
+        cursor = self.connection.find(
+            {'start': { $gt: start.timestamp() }},
+            {'end': { $lt: end.timestamp() }}
+        )
+        goals = []
+        for goal in cursor:
+            goals.append(goal)
+        return goals
 
-    def aggregate_activities(self, activities, target, act_type, goal_type, p=None):
+    def get_goals_by_year(self, year=None):
         '''
-        Aggregate the activities for a total distance and time
-        and other goal related statistics
+        Retrieve the goals that occur in the given year
 
-        :param list activities: list of activities for the goal
-        :param int target: goal target
-        :param str act_type: activity type
-        :param str goal_type: goal type
-        :param dict p: (optional) goal progress 
-        :return: dict progress
+        :param int year: the year to search 
+        :return: list of the goals
         '''
-        # initialize the empty p dict if no goal['progress'] dict passed
-        if not p:
-            p = {
-                'activity_cnt': 0,
-                'activities': [],
-                'current_duration': 0,
-                'current_distance': 0,
-                'percent_complete': 0,
-                'most_recent': {
-                    'date': None,
-                    'id': 0,
-                }
-            }
-        for act in activities:
-            # guard against the wrong activities
-            if act['type'] != act_type:
-                continue 
-
-            # strip the Z. python datetime doesn't like it
-            t = act['start_date_local'][:-1] 
-            # track the most recent activity for later updates
-            if (not p['most_recent']['date'] or 
-                (p['most_recent']['date'].timestamp() 
-                < dt.fromisoformat(t).timestamp())):
-                p['most_recent']['date'] = dt.fromisoformat(t)
-                p['most_recent']['id'] = act['id']
-
-            # 1km = 0.621371 miles / 1 m = 0.000621371 miles
-            p['current_distance'] += act['distance'] # distance in meters
-            p['current_duration'] += act['moving_time'] # time in seconds
-            p['activities'].append({
-                'id': act['id'],
-                'distance': act['distance'],
-                'date': act['start_date_local'],
-                'moving_time': act['moving_time'],
-            })
-            p['activity_cnt'] += 1
-        if goal_type == 'distance':
-            p['percent_complete'] = 100 * (p['current_distance'] / target)
-        elif goal_type == 'time': 
-            p['percent_complete'] = 100 * (p['current_duration'] / target)
-        if p['percent_complete'] > 100:
-            p['percent_complete'] = 100
-        return p
+        today = dt.now()
+        if year is None:
+            year = today.year
+        start = dt(year, 1, 1, 0, 0)
+        end = dt(year + 1, 1, 1, 0, 0)
+        cursor = self.connection.find(
+            {'start': { $gt: start.timestamp() }},
+            {'end': { $lt: end.timestamp() }}
+        )
+        goals = []
+        for goal in cursor:
+            goals.append(goal)
+        return goals

@@ -42,6 +42,35 @@ class StravaAPI():
         r = requests.get(url, headers=self.headers)
         return r.json()
     
+    def get_activities_all(self, before=None, after=None):
+        '''
+        Retrieve all strava activities between the given dates.
+
+        :param int before: timestamp to end the range
+        :param int after: timestamp to start the range
+        :return: list of activities
+        '''
+        today = datetime.now()
+        if before is None:
+            before = today.timestamp()
+        if after is None:
+            day_index = today.isoweekday() if today.isoweekday() != 7 else 0 
+            after = datetime(
+                today.year, 
+                today.month, 
+                (today.day - day_index), 0, 0
+            ).timestamp()
+        pg = 1
+        all_activities = []
+        while 1:
+            activities = self.get_activities(before=before, after=after, page=pg)
+            # exit the infinite loop after all activities retreived
+            if len(activities) == 0:
+                break
+            all_activities.extend(activities)
+            pg += 1
+        return all_activities
+
     def get_activities(self, before=None, after=None, page=1, per_page=30):
         '''
         Return the activities between after and before
@@ -53,9 +82,9 @@ class StravaAPI():
         :return: list of activities
         '''
         base_url = f'{self.api_url}athlete/activities'
+        today = datetime.now()
         # end datetime of activity range
         if before is None:
-            today = datetime.now()
             before = today.timestamp()
         # start datetime of activity range
         if after is None:
