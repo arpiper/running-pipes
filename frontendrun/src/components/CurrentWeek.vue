@@ -1,9 +1,9 @@
 <template>
   <div class="content__item">
-    <div style="display: none;" class="loading__bar_container">
+    <!--div style="display: none;" class="loading__bar_container">
       <span  class="loading__bar">
       </span>
-    </div>
+    </div-->
     <div  class="content__item_header">
       <span class="block__current_week">
         <h2 class="item__header">
@@ -38,13 +38,13 @@ export default {
   },
   data () {
     return {
-      loading: true,
       activities: [],
       date: new Date(),
       totals: {
         time: 0,
         dist: 0,
       },
+      totalsReady: false,
       implicitGoals: [],
     }
   },
@@ -70,11 +70,18 @@ export default {
       }
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + (6 - d))
     },
+    implicitGoalsReady () {
+      if (this.implicitGoals.length > 0 && this.totalsReady) {
+        return true
+      }
+    }
   },
   watch: {
     getGoals () {
-      this.checkImplicitGoals()
     },
+    implicitGoalsReady () {
+      this.checkImplicitGoals()
+    }
   },
   methods: {
     ...mapMutations([
@@ -94,18 +101,20 @@ export default {
       }
     },
     setTotals () {
+      console.log('activies', this.activities)
       this.activities.forEach((a) => {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
+        this.totalsReady = true
       })
     },
     checkImplicitGoals () {
       this.implicitGoals = this.getGoals
         .filter((goal) => goal.active)
         .map((goal) => {
+      console.log(this.totals.dist)
           // 86400000 milliseconds = 1 day
           let r = 0
-          let total = this.totals.dist
           let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
           let ig = {
             name: goal.name, 
@@ -119,12 +128,12 @@ export default {
           }
           ig['perDay'] = r / t
           ig['perWeek'] = (r / t) * 7
-          ig['percent'] = 100 * (total / (ig['perWeek']))
+          ig['percent'] = 100 * (this.totals.dist / (ig['perWeek']))
           return ig
         })
+      console.log(this.totals)
     },
     childLoaded () {
-      this.loading = false
       this.$emit('loaded')
     },
   },

@@ -55,6 +55,9 @@ export default {
     },
   },
   created () {
+    if (this.userId !== undefined) {
+      this.getGoals ()
+    }
   },
   mounted () {
     this.$emit('loaded')

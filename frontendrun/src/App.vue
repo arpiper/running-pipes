@@ -29,6 +29,7 @@ export default {
   name: 'app',
   data () {
     return {
+      addGoal: false,
     }
   },
   components: {

@@ -5,8 +5,17 @@ import Home from './components/Home.vue'
 
 Vue.use(VueRouter)
 const routes = [
-  {path: '/', component: Home},
-  {path: '/auth', component: Auth}
+  {
+    name: 'home',
+    path: '/', 
+    component: Home, 
+    alias: '/home'
+  },
+  {
+    name: 'auth',
+    path: '/auth', 
+    component: Auth
+  },
 ]
 
 const router = new VueRouter({

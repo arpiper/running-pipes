@@ -10,6 +10,7 @@ const store = new Vuex.Store({
     get_opts: {
       headers: {
         'content-type': 'application/json',
+        authorization: 'bearer ',
       },
       mode: 'cors',
       methods: 'GET',
@@ -20,7 +21,8 @@ const store = new Vuex.Store({
       body: '',
       mode: 'cors',
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        authorization: 'bearer ',
       },
     },
     goals: undefined,
@@ -73,6 +75,8 @@ const store = new Vuex.Store({
     },
     setToken (state, token) {
       state.token = token
+      state.get_opts.headers.authorization += token
+      state.post_opts.headers.authorization += token
     },
   },
 })

@@ -1,23 +1,24 @@
 <template>
   <div class="app__body">
     <div v-if="loading">
-      <div v-if="getUserId">
-        <div class="loading__bar_container">
-          <span  class="loading__bar">
-          </span>
-        </div>
-        <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
-        <GoalsList @loaded='goalsLoaded()'></GoalsList>
+      <div class="loading__bar_container">
+        <span  class="loading__bar">
+        </span>
       </div>
-      <div v-else class="content__item">
-        <p>no authorized user</p>
-        <div class="block__athlete_auth">
-          <span class="block_athlete_auth_button">
-            <a :href="oauthURI">
-              <img :src="connectStrava" alt="Connect with Strava">
-            </a>
-          </span>
-        </div>
+    </div>
+    <div v-if="getUserId">
+      
+      <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
+      <GoalsList @loaded='goalsLoaded()'></GoalsList>
+    </div>
+    <div v-if="!getUserId" class="content__item">
+      <p>no authorized user</p>
+      <div class="block__athlete_auth">
+        <span class="block_athlete_auth_button">
+          <a :href="oauthURI">
+            <img :src="connectStrava" alt="Connect with Strava">
+          </a>
+        </span>
       </div>
     </div>
   </div>
@@ -33,7 +34,6 @@ export default {
   data () {
     return {
       userId: undefined,
-      addGoal: false,
       loading: true,
       currentWeek: false,
       goals: false,
@@ -85,23 +85,22 @@ export default {
       'setToken',
     ]),
     checkToken () {
-      let t = JSON.parse(localStorage.getItem('evtData'))
+      let t = JSON.parse(localStorage.getItem('acc-tok-ath'))
       if (t) {
         this.setToken(t.accessToken)
+        this.getAuthUser()
       }
     },
     getAuthUser () {
       let opts = this.GET
-      opts['headers']['authorization'] = `Bearer ${this.getToken}`
       fetch(`${this.api}/athlete`, opts)
         .then(response => {
-          if (response.status === 401) {
-            return 401
+          if (response.ok) {
+            return response.json()
           }
-          return response.json()
+          throw new Error('Response not ok')
         })
         .then(response => {
-          console.log('getAuthUser', response)
           if (response !== 401) {
             this.setAthlete(response.data.athlete)
             this.userId = response.data.athlete.id
@@ -121,8 +120,9 @@ export default {
   created () {
     if (this.getToken === undefined) {
       this.checkToken()
+    } else {
+      this.getAuthUser()
     }
-    this.getAuthUser()
   },
   components: {
     GoalsList,
