@@ -107,8 +107,8 @@ class Goals(dict):
         start = dt(year, month, 1, 0, 0)
         end = dt(year, month + 1, 1, 0, 0)
         cursor = self.connection.find(
-            {'start': { $gt: start.timestamp() }},
-            {'end': { $lt: end.timestamp() }}
+            {'start': { '$gt': start.timestamp() }},
+            {'end': { '$lt': end.timestamp() }}
         )
         goals = []
         for goal in cursor:
@@ -128,8 +128,8 @@ class Goals(dict):
         start = dt(year, 1, 1, 0, 0)
         end = dt(year + 1, 1, 1, 0, 0)
         cursor = self.connection.find(
-            {'start': { $gt: start.timestamp() }},
-            {'end': { $lt: end.timestamp() }}
+            {'start': { '$gt': start.timestamp() }},
+            {'end': { '$lt': end.timestamp() }}
         )
         goals = []
         for goal in cursor:

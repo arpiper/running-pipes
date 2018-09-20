@@ -3,6 +3,7 @@ from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, curr
 from werkzeug.exceptions import abort
 from bson import ObjectId
 import functools
+import requests
 
 from .auth import login_required
 from ..services.mdb import get_db
@@ -17,7 +18,7 @@ test = 'before'
 def validate_auth(func):
     @functools.wraps(func)
     def wrapper_validate_auth(*args, **kwargs):
-        if request.authorization is None:
+        if 'authorization' in request.headers.keys():
             abort(401)
         return func(*args, **kwargs)
     return wrapper_validate_auth
@@ -27,8 +28,8 @@ def validate_auth(func):
 def get_token():
     cs = current_app.config['STRAVA']['CLIENT_SECRET']
     cid = current_app.config['STRAVA']['CLIENT_ID']
-    data = request.get_json()
-    if 'code' not in data.keys():
+    body = request.get_json()
+    if 'code' not in body.keys():
         return jsonify({
             'message': 'invalid code'
         }), 401
@@ -37,15 +38,15 @@ def get_token():
         data = {
             'client_id': cid,
             'client_secret': cs,
-            'code': data['code']
+            'code': body['code']
         }
     )
-    return j.json()
+    return jsonify(r.json()), r.status_code
 
 @api_bp.route('/athlete', methods=['GET'])
 @validate_auth
 def get_athlete():
-    auth = request.authorization
+    auth = request.headers['authorization'].split(' ')[1]
     st = get_strava(auth)
     athlete, status = st.get_auth_athlete()
     r = {}
@@ -66,7 +67,6 @@ def get_athlete():
 @validate_auth
 def get_data(id):
     g = goals.get_one(id)
-    print(test)
     return jsonify({
         'message': 'api get datae',
         'data': {
@@ -78,7 +78,7 @@ def get_data(id):
 @api_bp.route('/activities', methods=['GET'])
 @validate_auth
 def get_activities():
-    auth = request.authorization
+    auth = request.headers['authorization'].split(' ')[1]
     st = get_strava(auth)
     data = st.get_activities()
     return jsonify({
