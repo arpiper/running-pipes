@@ -68,8 +68,8 @@ export default {
       goalName: "Goal",
       goalActivity: 'Run',
       goalType: 'distance',
-      goalStart: new Date().toISOString().split('T')[0],
-      goalEnd: new Date().toISOString().split('T')[0],
+      goalStart: new Date(),
+      goalEnd: new Date(),
       url: 'http://localhost:5000/api/goals',
     }
   },
@@ -81,10 +81,10 @@ export default {
   },
   methods: {
     startDatePicked (date) {
-      this.goalStart = date.toISOString().split('T')[0]
+      this.goalStart = date
     },
     endDatePicked (date) {
-      this.goalEnd = date.toISOString().split('T')[0]
+      this.goalEnd = date
     },
     formSubmit () {
       let target_m = 0
@@ -99,8 +99,8 @@ export default {
         target: this.goalTarget,
         target_m: target_m,
         type: this.goalType,
-        start: this.goalStart,
-        end: this.goalEnd,
+        start: this.goalStart.getTime() / 1000,
+        end: this.goalEnd.getTime() / 1000,
         activity: this.goalActivity,
         active: true,
       }

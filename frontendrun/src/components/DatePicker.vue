@@ -88,7 +88,7 @@ export default {
 
   },
   mounted () {
-    console.log('mount',this.$refs.input.offsetHeight)
+    //console.log('mount',this.$refs.input.offsetHeight)
     let height = this.$refs.input.offsetHeight + this.$refs.label.offsetHeight
     this.calendarPos = {
       top: `${height}px`,

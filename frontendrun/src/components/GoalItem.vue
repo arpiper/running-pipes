@@ -40,10 +40,10 @@ export default {
       userId: 'getUserId',
     }),
     start_date () {
-      return new Date(`${this.goal.start}T00:00:00`)
+      return new Date(this.goal.start * 1000)
     },
     end_date () {
-      return new Date(`${this.goal.end}T00:00:00`)
+      return new Date(this.goal.end * 1000)
     },
     units () {
       if (this.goal.type == 'distance') {
@@ -67,6 +67,7 @@ export default {
     },
   },
   created () {
+    console.log('goal', this.goal)
   }
 }
 </script>

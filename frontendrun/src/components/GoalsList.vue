@@ -35,6 +35,11 @@ export default {
       if (id !== undefined) {
         this.getGoals()
       }
+    },
+    goals (val) {
+      if (val.length > 0) {
+        this.checkGoals()
+      }
     }
   },
   methods: {
@@ -52,6 +57,23 @@ export default {
             this.setGoals(res.data.goals)
           })
       }
+    },
+    checkGoals () {
+      // current timestamp in seconds
+      let now = new Date().getTime() / 1000
+      this.goals
+        .filter(v => v.active)
+        .forEach((v, i) => {
+          if (v.progress.most_recent.date < now) {
+            console.log('updating goal progress')
+            fetch(`${this.api}/goals/${v._id}`, this.GET)
+              .then(response => response.json())
+              .then(response => {
+                console.log('update fecth',response)
+                this.goals[i] = response.data.goal
+              })
+          }
+        })
     },
   },
   created () {

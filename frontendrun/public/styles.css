@@ -115,7 +115,7 @@ body {
   background-color: var(--color-gray-light);
   padding: 5px 15px;
   margin: 5px;
-  flex: 1;
+  flex: 0 0 31%;
 }
 .goal__header {
   margin: 0;
