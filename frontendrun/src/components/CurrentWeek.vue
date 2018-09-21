@@ -70,17 +70,14 @@ export default {
       }
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + (6 - d))
     },
-    implicitGoalsReady () {
-      if (this.implicitGoals.length > 0 && this.totalsReady) {
-        return true
-      }
-    }
   },
   watch: {
     getGoals () {
     },
-    implicitGoalsReady () {
-      this.checkImplicitGoals()
+    totalsReady (val) {
+      if (val) {
+        this.checkImplicitGoals()
+      }
     }
   },
   methods: {
@@ -101,21 +98,20 @@ export default {
       }
     },
     setTotals () {
-      console.log('activies', this.activities)
       this.activities.forEach((a) => {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
-        this.totalsReady = true
       })
+      this.totalsReady = true
     },
     checkImplicitGoals () {
       this.implicitGoals = this.getGoals
         .filter((goal) => goal.active)
         .map((goal) => {
-      console.log(this.totals.dist)
           // 86400000 milliseconds = 1 day
           let r = 0
           let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
+          let total = this.totals.dist
           let ig = {
             name: goal.name, 
             _id: goal._id
@@ -128,10 +124,9 @@ export default {
           }
           ig['perDay'] = r / t
           ig['perWeek'] = (r / t) * 7
-          ig['percent'] = 100 * (this.totals.dist / (ig['perWeek']))
+          ig['percent'] = 100 * (total / (ig['perWeek']))
           return ig
         })
-      console.log(this.totals)
     },
     childLoaded () {
       this.$emit('loaded')
