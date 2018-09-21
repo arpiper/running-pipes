@@ -46,8 +46,8 @@ class Goals(dict):
         g = self.connection.find_one({
             '_id': ObjectId(goalid)
         })
-        #goal = Goal(g, self.connection).to_dict()
-        return g
+        goal = Goal(g, self.connection)
+        return goal
 
     def get_many(self, userid):
         '''

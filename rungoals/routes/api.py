@@ -2,6 +2,7 @@ import calendar
 from flask import Blueprint, flash, g, redirect, request, url_for, jsonify, current_app, abort
 from werkzeug.exceptions import abort
 from bson import ObjectId
+from datetime import datetime as dt
 import functools
 import requests
 
@@ -9,6 +10,7 @@ from .auth import login_required
 from ..services.mdb import get_db
 from ..services.stravaAPI import get_strava
 from ..models.goals import Goals
+from ..models.goal import Goal
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 goals = Goals()
@@ -91,6 +93,7 @@ def get_activities():
 @api_bp.route('/goals', methods=['GET', 'POST'])
 @validate_auth
 def get_goals():
+    auth = request.headers.get('authorization').split(' ')[1]
     if request.method == 'GET':
         if 'userid' not in request.args.keys():
             return jsonify({
@@ -99,10 +102,8 @@ def get_goals():
                     'error': 'no user id given',
                 }
             })
-        auth = request.authorization
         st = get_strava(auth)
         goals = Goals()
-        #data = st.get_activities_by_month()
         goal_list = goals.get_many(request.args['userid'])
         return jsonify({
             'message': 'get all the running goals',
@@ -116,13 +117,18 @@ def get_goals():
             return jsonify({
                 'message': 'invalid data given',
             })
-        #goalid = goals.save(data)
-        #goalid = goals.create_goal(data)
-        goalid = Goal(data).save()
+        db = get_db()
+        st = get_strava(auth)
+        goal = Goal(data, db.db)
+        activities = st.get_activities_all(
+            after=goal.start.timestamp(), 
+            before=goal.end.timestamp()
+        )
+        goal.update_progress(activities)
         return jsonify({
             'message': 'new goal added',
             'data': {
-                'id': goalid,
+                'id': goal._id,
             },
         })
 
@@ -130,11 +136,26 @@ def get_goals():
 @validate_auth
 def get_goal(id):
     goal = goals.get_one(id)
+    today = dt.now()
+    auth = request.headers.get('authorization').split(' ')[1]
+    st = get_strava(auth)
+    if goal.progress['most_recent']['date'] is None:
+        activities = st.get_activities_all(
+            before=today.timestamp(),
+            after=goal.start.timestamp()
+        )
+        goal.update_progress(activities)
+    elif (goal.active 
+        and goal.progress['most_recent']['date'] < today.timestamp()):
+        activities = st.get_activities_all(
+            before=today.timestamp(),
+            after=goal.progress['most_recent']['date']
+        )
+        goal.update_progress(activities)
     return jsonify({
         'message': 'get a single running goal with the id',
         'data': {
-            'goalid': id,
-            'goal': 'GOOAAAAAL!',
+            'goal': goal.to_dict(),
         },
     })
 

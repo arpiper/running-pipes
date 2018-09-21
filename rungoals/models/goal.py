@@ -31,14 +31,19 @@ class Goal():
     def __init__(self, goal, db):
         if db is None:
             raise ValueError('no db connection given to constructor')
-        self.connection = db
+        elif db.name == 'goals':
+            self.connection = db
+        else:
+            self.connection = db.goals
 
         if '_id' in goal.keys():
             self._id = goal['_id']
         if 'start' not in goal.keys() or 'end' not in goal.keys():
             raise ValueError('goal must have valid start and end dats')
-        self.start = dt.fromisoformat(goal['start'])
-        self.end = dt.fromisoformat(goal['end'])
+        #self.start = dt.fromisoformat(goal['start'])
+        #self.end = dt.fromisoformat(goal['end'])
+        self.start = dt.fromtimestamp(goal['start'])
+        self.end = dt.fromtimestamp(goal['end'])
         if 'name' not in goal.keys():
             self.name = f'Goal ${goal["start"]} - ${goal["end"]}'
         self.name = goal['name']
@@ -62,13 +67,13 @@ class Goal():
         '''
         Save goal to the database
         '''
-        if self._id is not None:
+        if self._id is None:
             result = self.connection.insert_one(self.to_dict())
             self._id = result.inserted_id
         else:
             result = self.connection.update_one(
-                {'_id': self._id},
-                self.to_dict()
+                {'_id': ObjectId(self._id)},
+                {'$set': self.to_dict()}
             )
         return self._id
 
@@ -99,8 +104,8 @@ class Goal():
 
         :return: boolean
         '''
-        today = dt.now()
-        end = dt.fromisoformat(self.end)
+        today = dt.now().timestamp()
+        end = dt.fromtimestamp(self.end)
         # today is greater than the end date, ie end date is in the past
         if today > end:
             self.active = False
@@ -116,16 +121,15 @@ class Goal():
         '''
         for act in activities:
             # guard against the wrong activities
-            if act['type'] != self.type:
+            if act['type'] != self.activity:
                 continue 
 
             # strip the Z. python datetime doesn't like it
-            t = act['start_date_local'][:-1] 
+            t = dt.fromisoformat(act['start_date_local'][:-1])
             # track the most recent activity for later updates
             if (not self.progress['most_recent']['date'] or 
-                (self.progress['most_recent']['date'].timestamp() 
-                < dt.fromisoformat(t).timestamp())):
-                self.progress['most_recent']['date'] = dt.fromisoformat(t)
+                (self.progress['most_recent']['date'] < t.timestamp())):
+                self.progress['most_recent']['date'] = t.timestamp()
                 self.progress['most_recent']['id'] = act['id']
 
             # 1km = 0.621371 miles / 1 m = 0.000621371 miles
@@ -137,16 +141,16 @@ class Goal():
             self.progress['activities'].append({
                 'id': act['id'],
                 'distance': act['distance'],
-                'date': act['start_date_local'],
+                'date': dt.fromisoformat(act['start_date_local'][:-1]),
                 'moving_time': act['moving_time'],
             })
             self.progress['activity_cnt'] += 1
 
-        # update the progress percent 
-        if goal_type == 'distance':
+        # update the progress percentage
+        if self.type == 'distance':
             self.progress['percent_complete'] = (100 
                 * (self.progress['current_distance'] / self.target_m))
-        elif goal_type == 'time': 
+        elif self.type == 'time': 
             self.progress['percent_complete'] = (100 
                 * (self.progress['current_duration'] / self.target_m))
 
