@@ -30,6 +30,7 @@ export default {
       percent: 0,
       leftPercent: 0,
       percentStyle: {left: 'calc(50%)'},
+      transitionDuration: 3500,
     }
   },
   computed: {
@@ -42,25 +43,36 @@ export default {
     tau () {
       return Math.PI * 2
     },
+    svgWidth () {
+      return this.or * 2.5
+    },
+    center () {
+      return this.svgWidth / 2
+    }
   },
   watch: {
     leftPercent (l) {
       this.percentStyle = {left: `calc(50% - ${l / 2}px)`}
     },
+    percent (val) {
+      if (val >= 100) {
+        this.goalComplete()
+      }
+    },
   },
   methods: {
     drawCircle () {
       this.svg = d3.select(`#${this.goalId}`).append('svg')
-        .attr('viewBox', `0 0 ${this.or * 2} ${this.or * 2}`)
+        .attr('viewBox', `0 0 ${this.svgWidth} ${this.svgWidth}`)
         //.attr('preserveAspectRatio', 'none')
       // create the svg element
       let g = this.svg.append('g')
         .attr('class', 'goal-progress')
-        .attr('transform', `translate(${this.or}, ${this.or})`)
+        .attr('transform', `translate(${this.center}, ${this.center})`)
       // add a 'g' container for the background arc
       let g_back = this.svg.append('g')
         .attr('class', 'arc-background')
-        .attr('transform', `translate(${this.or}, ${this.or})`)
+        .attr('transform', `translate(${this.center}, ${this.center})`)
       // create an arc function for the background
       let arc = d3.arc()({
         innerRadius: this.ir,
@@ -84,7 +96,7 @@ export default {
         .attr('d', arc0)
       // transition the arc from 0 to the current progress
       start.transition()
-        .duration(3500)
+        .duration(this.transitionDuration)
         .attrTween('d', arcTween(this.angle))
       // helper function to draw the inbetween steps of the transition
       function arcTween (newAngle) {
@@ -97,24 +109,47 @@ export default {
         }
       }
     },
+    goalComplete () {
+      let g = this.svg.append('g')
+        .attr('class', 'goal-complete')
+        .attr('transform', `translate(${this.center}, ${this.center})`)
+      // draw the fill circle 
+      g.append('circle')
+        .attr('r', 0)
+        .attr('fill', this.color)
+        .attr('fill-opacity', 0.5)
+        .transition().duration(750).ease(d3.easeLinear)
+        .attr('r', this.or)
+      // draw circle that grows beyond and fades out
+      g.append('circle')
+        .attr('r', 0)
+        .attr('fill', this.color)
+        .attr('fill-opacity', 0.5)
+        .transition().duration(750).ease(d3.easeLinear)
+        .attr('r', this.or * 1.15)
+        .transition().duration(500).ease(d3.easeLinear)
+        .attr('r', this.or * 1.25)
+        .attr('fill-opacity', 0)
+    },
     clearCircle () {
       d3.select(`#${this.goalId} svg`).remove()
     },
     countPercent () {
-      let step = 2000 / this.goal.percent
+      let step = this.transitionDuration / this.goal.percent
       let timer = setInterval(() => {
+        // shift the percent to be centered in the circle
         if (this.$refs.percent.offsetWidth > this.leftPercent) {
           this.leftPercent = this.$refs.percent.offsetWidth
         }
-        if (this.percent === Math.round(this.goal.percent)) {
+        if (this.percent === Math.round(this.goal.percent) || this.percent === 100) {
           clearInterval(timer)
+        } else {
+          this.percent++
         }
-        this.percent++
       }, step)
     },
   },
   mounted () {
-    console.log('implicit', this.goal)
     this.drawCircle()
     if (this.goal.percent > 0) {
       this.countPercent()
