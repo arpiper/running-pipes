@@ -88,11 +88,10 @@ class StravaAPI():
             before = today.timestamp()
         # start datetime of activity range
         if after is None:
-            day_index = today.isoweekday() if today.isoweekday() != 7 else 0 
             after = datetime(
                 today.year, 
                 today.month, 
-                (today.day - day_index), 0, 0
+                (today.day - today.weekday()), 0, 0
             ).timestamp()
         params = f'?before={before}&after={after}&page={page}&per_page={per_page}'
         r = requests.get(f'{base_url}{params}', headers=self.headers)
