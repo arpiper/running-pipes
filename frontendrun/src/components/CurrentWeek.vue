@@ -54,15 +54,16 @@ export default {
       getWeek: 'getWeek',
     }),
     weekStart () {
-      let d = this.date.getDay()
+      // zero indexed with sunday the first day. -1 adjustment to make Monday the first day.
+      let d = this.date.getDay() - 1
       if (d === 0) {
         return this.date
       }
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() - d)
     },
     weekEnd () {
-      let d = this.date.getDay()
-      if (d === 6) {
+      let d = this.date.getDay() - 1
+      if (d === -1) {
         return this.date
       }
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + (6 - d))
