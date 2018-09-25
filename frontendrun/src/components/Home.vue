@@ -94,6 +94,17 @@ export default {
           console.error('error', response)
         })
     },
+    /*
+    refreshGoals () {
+      let opts = this.POST
+      opts['body'] = JSON.stringify({userId: this.getUserId})
+      fetch(`${this.api}/refresh`, opts)
+        .then(res => res.json())
+        .then(res => {
+          console.log('refresh', res)
+        })
+    },
+    */
     currentWeekLoaded () {
       this.currentWeek = true
     },

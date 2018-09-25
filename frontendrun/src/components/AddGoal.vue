@@ -45,7 +45,7 @@
 
 <script>
 import DatePicker from './DatePicker.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'add-goal',
@@ -80,6 +80,9 @@ export default {
     }),
   },
   methods: {
+    ...mapMutations([
+      'updateGoals'
+    ]),
     startDatePicked (date) {
       this.goalStart = date
     },
@@ -112,6 +115,8 @@ export default {
         .then(res => {
           console.log(res)
           // emit event to notify parent of new goal
+          this.$emit('goalAdded')
+          this.updateGoals(res.data.goal)
         })
     },
   },

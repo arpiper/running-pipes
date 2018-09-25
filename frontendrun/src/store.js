@@ -25,7 +25,7 @@ const store = new Vuex.Store({
         authorization: 'bearer ',
       },
     },
-    goals: undefined,
+    goals: [],
     stats: undefined,
     current_week: undefined,
     token: undefined,
@@ -66,6 +66,9 @@ const store = new Vuex.Store({
     },
     setGoals (state, goals) {
       state.goals = goals
+    },
+    updateGoals (state, goal) {
+      state.goals.push(goal)
     },
     setStats (state, stats) {
       state.stats = stats

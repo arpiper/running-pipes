@@ -1,5 +1,6 @@
 <template>
   <div class="content__item">
+    <Loading type='spin' :loading='loading'></loading>
     <div  class="content__item_header">
       <span class="block__current_week">
         <h2 class="item__header">
@@ -35,6 +36,7 @@ export default {
   },
   data () {
     return {
+      loading: true,
       activities: [],
       date: new Date(),
       totals: {
@@ -68,12 +70,19 @@ export default {
       }
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + (6 - d))
     },
+    allReady () {
+      return this.totalsReady && this.getGoals.length > 0
+    },
   },
   watch: {
-    getGoals () {
+    getGoals (value) {
+      console.log('curretn week wathc', value)
+      if (this.allReady) {
+        this.checkImplicitGoals()
+      }
     },
-    totalsReady (val) {
-      if (val) {
+    allReady (value) {
+      if (value) {
         this.checkImplicitGoals()
       }
     }
@@ -104,6 +113,7 @@ export default {
       this.totalsReady = true
     },
     checkImplicitGoals () {
+      console.log('implicit goals', this.getGoals)
       this.implicitGoals = this.getGoals
         .filter((goal) => goal.active)
         .map((goal) => {
@@ -131,6 +141,7 @@ export default {
     },
     childLoaded () {
       this.$emit('loaded')
+      this.loading = false
     },
   },
   created () {

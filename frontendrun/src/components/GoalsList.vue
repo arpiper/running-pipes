@@ -36,18 +36,22 @@ export default {
         this.getGoals()
       }
     },
-    goals (val) {
-      if (val.length > 0) {
+    goals (value) {
+      if (value.length > 0) {
         this.checkGoals()
       }
-    }
+    },
+    getStoreGoals (value) {
+      this.goals = value
+    },
   },
   methods: {
     ...mapMutations([
       'setGoals',
     ]),
     getGoals () {
-      if (this.getStoreGoals !== undefined) {
+      if (this.getStoreGoals.length > 0) {
+        console.log('goals', this.getStoreGoals)
         this.goals = this.getStoreGoals
       } else {
         fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)

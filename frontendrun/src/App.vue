@@ -10,7 +10,7 @@
         <ButtonCmp :toggle='addGoal' @click.native="toggleAdd()">
         </ButtonCmp>
         <div v-if="addGoal">
-          <AddGoal></AddGoal>
+          <AddGoal @goalAdded='toggleAdd()'></AddGoal>
         </div>
       </div>
     </div>
