@@ -1,13 +1,6 @@
 <template>
   <div class="app__body">
-    <div v-if="loading">
-      <div class="loading__bar_container">
-        <span  class="loading__bar">
-        </span>
-      </div>
-    </div>
     <div v-if="getUserId">
-      
       <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
       <GoalsList @loaded='goalsLoaded()'></GoalsList>
     </div>
@@ -34,7 +27,6 @@ export default {
   data () {
     return {
       userId: undefined,
-      loading: true,
       currentWeek: false,
       goals: false,
       connectStrava: require('@/assets/btn_strava_connectwith_orange.png'),
@@ -57,9 +49,6 @@ export default {
     ...mapGetters({
       'GET': 'getGetOpts',
     }),
-    mainComponents () {
-      return this.currentWeek && this.goals
-    },
     oauthURI () {
       let s = this.oauthUrl
       for (var key in this.oauth) {
@@ -73,11 +62,6 @@ export default {
     },
   },
   watch: {
-    mainComponents (value) {
-      if (value) {
-        this.loading = false
-      }
-    }
   },
   methods: {
     ...mapMutations([
