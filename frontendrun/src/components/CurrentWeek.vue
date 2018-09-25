@@ -1,9 +1,5 @@
 <template>
   <div class="content__item">
-    <!--div style="display: none;" class="loading__bar_container">
-      <span  class="loading__bar">
-      </span>
-    </div-->
     <div  class="content__item_header">
       <span class="block__current_week">
         <h2 class="item__header">
@@ -31,6 +27,7 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import GoalItemSmall from './GoalItemSmall.vue'
+import Loading from './Loading.vue'
 
 export default {
   name: 'current-week',
@@ -102,15 +99,17 @@ export default {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
       })
+      console.log('activities, totals', this.activities, this.totals)
       this.totalsReady = true
     },
     checkImplicitGoals () {
       this.implicitGoals = this.getGoals
         .filter((goal) => goal.active)
         .map((goal) => {
-          // 86400000 milliseconds = 1 day
+          // 86400000 milliseconds = 1 day, js timestamps are in milliseconds
+          let end = new Date(goal.end * 1000)
+          let t = Math.ceil((end - this.date) / 86400000)
           let r = 0
-          let t = Math.ceil((new Date(goal.end) - this.date) / 86400000)
           let total = this.totals.dist
           let ig = {
             name: goal.name, 
@@ -120,8 +119,9 @@ export default {
             r = goal.target_m - goal.progress.current_distance
           } else if (goal.type === 'time') {
             r = goal.target_m - goal.progress.current_duration
-            total = this.totals.duration
+            total = this.totals.time
           }
+          console.log('r', r, 't', t)
           ig['perDay'] = r / t
           ig['perWeek'] = (r / t) * 7
           ig['percent'] = 100 * (total / (ig['perWeek']))
@@ -137,6 +137,7 @@ export default {
   },
   components: {
     GoalItemSmall,
+    Loading,
   }
 }
 </script>

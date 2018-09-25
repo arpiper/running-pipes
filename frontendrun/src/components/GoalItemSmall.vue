@@ -150,6 +150,7 @@ export default {
     },
   },
   mounted () {
+    console.log('implicit', this.goal)
     this.drawCircle()
     if (this.goal.percent > 0) {
       this.countPercent()
