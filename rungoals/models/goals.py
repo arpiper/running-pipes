@@ -54,7 +54,7 @@ class Goals(dict):
         Retrieve all goals related to a user
 
         :param int userid: Strava user id
-        :return: list of goals
+        :return: list of goals, and date of oldest most recent activity
         '''
         if type(userid) == str: 
             userid = int(userid)
@@ -62,9 +62,12 @@ class Goals(dict):
             'userid': userid,
         })
         goals = []
+        oldest = dt.now().timestamp()
         for goal in cursor:
-            goals.append(goal)
-        return goals
+            if goal['progress']['most_recent']['date'] < oldest:
+                oldest = goal['progress']['most_recent']['date']
+            goals.append(Goal(goal, self.connection))
+        return goals, oldest
 
     def create_goal(self, goal):
         '''

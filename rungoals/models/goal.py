@@ -105,12 +105,18 @@ class Goal():
         :return: boolean
         '''
         today = dt.now().timestamp()
-        end = dt.fromtimestamp(self.end)
         # today is greater than the end date, ie end date is in the past
-        if today > end:
+        if today > self.end.timestamp():
             self.active = False
             self.save()
         return self.active
+
+    def update_goal(self):
+        '''
+        update the goals progress and check the dates.
+        '''
+        if self.check_end_date():
+            self.update_progress()
 
     def update_progress(self, activities):
         '''

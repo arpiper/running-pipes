@@ -104,11 +104,19 @@ def get_goals():
             })
         st = get_strava(auth)
         goals = Goals()
-        goal_list = goals.get_many(request.args['userid'])
+        goal_list, oldest = goals.get_many(request.args['userid'])
+
+        activities = st.get_activities_all(after=oldest, before=dt.now().timestamp())
+        updated = []
+        for goal in goal_list:
+            if goal.check_end_date():
+                goal.update_progress(activities)
+            updated.append(goal.to_dict())
+
         return jsonify({
             'message': 'get all the running goals',
             'data': {
-                'goals': goal_list,
+                'goals': updated,
             },
         })
     elif request.method == 'POST':
@@ -129,6 +137,7 @@ def get_goals():
             'message': 'new goal added',
             'data': {
                 'id': goal._id,
+                'goal': goal.to_dict()
             },
         })
 
@@ -191,16 +200,15 @@ def get_goals_month(year, month):
     })
 
 @api_bp.route('/goals/refresh', methods=['POST'])
+@validate_auth
 def update_goals_progress():
     data = request.get_json()
     if 'userId' not in data:
         return jsonify({
             'message': 'error updated goals, no userid'
         })
-    goal_list = goals.get_many(data['userId'])
-    updated = []
-    for goal in goal_list:
-        updated.append(goals.update_goal(goal))
+    goal_list, oldest = goals.get_many(data['userId'])
+    auth = request.headers.get('authorization').split(' ')[1]
     return jsonify({
         'message': 'goals refreshed',
         'data': {
