@@ -1,12 +1,13 @@
 <template>
   <div class="content__item">
     <Loading type='spin' :loading='loading'></loading>
-    <div  class="content__item_header">
+    <div class="content__item_header">
       <span class="block__current_week">
         <h2 class="item__header">
           {{ weekStart | date('%b%d') }} - {{ weekEnd | date('%b%d') }}
         </h2>
       </span>
+      <span>Weekly progress based on your goals.</span>
     </div>
     <div class="content__item_main">
       <div class="content__item_main_left">

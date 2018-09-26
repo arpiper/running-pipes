@@ -1,4 +1,5 @@
 <template>
+  <transition name="fade">
   <div v-if="loading">
     <div class="loading__container">
       <span v-if="type == 'bar'" class="loading__bar">
@@ -7,6 +8,7 @@
       </span>
     </div>
   </div>
+  </transition>
 </template>
 
 <script>
@@ -27,25 +29,10 @@ export default {
 </script>
 
 <style>
-.loading__spin {
-  display: none;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  background-color: rgba(0,0,0,0.25);
+.fade-leave-active {
+  transition: opacity 0.75s;
 }
-.loading__spin:after {
-  content: "";
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  margin: auto;
-  position: absolute;
-  border: 5px solid var(--color-gray-light);
-  border-top: 5px solid var(--color-main);
-  animation: spin 1.5s infinite linear;
-  top: calc(50% - 20px);
-  left: calc(50% - 20px);
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
