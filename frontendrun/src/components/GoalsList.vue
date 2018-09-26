@@ -1,13 +1,15 @@
 <template>
   <div>
     <div class="goals">
+      <transition-group name="goallist" tag='div' @enter="enter" @beforeEnter="beforeEnter">
       <GoalItem 
-        v-for="goal of goals"
+        v-for="(goal, i) of goals"
         :key="goal._id"
-        :goal="goal">
+        :goal="goal"
+        :data-index="i">
       </GoalItem>
+    </transition-group>
     </div>
-
   </div>
 </template>
 
@@ -79,6 +81,20 @@ export default {
           }
         })
     },
+    beforeEnter (el) {
+      el.style.opacity = 0
+      el.style.top = `-100px`
+      el.style.position = 'absolute'
+      el.style.width = '100%'
+    },
+    enter (el) {
+      let d = el.dataset.index * 550
+      let t = el.dataset.index * 135
+      setTimeout( () => {
+        el.style.opacity = 1
+        el.style.top = `${t}px`
+      }, d)
+    },
   },
   created () {
     if (this.userId !== undefined) {
@@ -99,5 +115,10 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100%;
+  position: relative;
+}
+.goallist-enter,
+.goallist-enter-to {
+  transition: all 0.2s;
 }
 </style>
