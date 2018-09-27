@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="goals">
-      <transition-group name="goallist" tag='div' @enter="enter" @beforeEnter="beforeEnter">
+      <transition-group name="goallist" tag='div' @enter="enter" @beforeEnter="beforeEnter" class='goals' :css="false">
       <GoalItem 
         v-for="(goal, i) of goals"
         :key="goal._id"
@@ -84,15 +84,17 @@ export default {
     beforeEnter (el) {
       el.style.opacity = 0
       el.style.top = `-100px`
-      el.style.position = 'absolute'
-      el.style.width = '100%'
+      el.style.backgroundColor = 'blue'
+      console.log('beforeenter', el)
     },
     enter (el) {
       let d = el.dataset.index * 550
       let t = el.dataset.index * 135
+      console.log('enter', el)
       setTimeout( () => {
         el.style.opacity = 1
         el.style.top = `${t}px`
+        el.style.backgroundColor = 'white'
       }, d)
     },
   },
@@ -117,8 +119,11 @@ export default {
   width: 100%;
   position: relative;
 }
-.goallist-enter,
-.goallist-enter-to {
-  transition: all 0.2s;
+.goal__item {
+  position: absolute;
+  width: 100%;
+}
+.goallist {
+  transition: all 1s;
 }
 </style>

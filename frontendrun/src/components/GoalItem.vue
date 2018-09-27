@@ -119,4 +119,11 @@ export default {
 .goal__progress_item {
   margin-left: 10px;
 }
+.fade-enter {
+  opacity: 0;
+}
+.fade-enter-to {
+  opacity: 1;
+  transition: all .5s;
+}
 </style>
