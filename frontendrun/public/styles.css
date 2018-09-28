@@ -32,10 +32,11 @@ body {
   width: 100%;
   display: grid;
   margin: 0 auto;
-  grid-template-rows: 100px 1fr 50px;
+  grid-template-rows: 100px 25px 1fr 50px;
   grid-template-columns: 10% 60% 20% 10%;
   grid-template-areas: 
     'header header header header'
+    'nav nav nav nav'
     'left body sidebar right'
     'footer footer footer footer'
 }
@@ -43,6 +44,27 @@ body {
   grid-area: header;
   /* temp for visual*/
   background-color: white;
+  display: flex;
+}
+.header__logo {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+.header__logo_img {
+  height: 90%;
+}
+.header__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.header__name {
+  margin: 0;
+}
+.header__tagline {
+  margin: 0;
 }
 .app__body {
   grid-area: body;
