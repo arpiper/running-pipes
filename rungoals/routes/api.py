@@ -129,11 +129,13 @@ def get_goals(**kwargs):
         db = get_db()
         st = get_strava(auth)
         goal = Goal(data, db.db)
-        activities = st.get_activities_all(
-            after=goal.start.timestamp(), 
-            before=goal.end.timestamp()
-        )
-        goal.update_progress(activities)
+        # update the goal progress if the start is in the past
+        if goal.start.timestamp() < dt.now().timestamp():
+            activities = st.get_activities_all(
+                after=goal.start.timestamp(), 
+                before=goal.end.timestamp()
+            )
+            goal.update_progress(activities)
         return jsonify({
             'message': 'new goal added',
             'data': {
