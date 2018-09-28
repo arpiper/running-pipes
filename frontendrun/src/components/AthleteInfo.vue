@@ -10,6 +10,7 @@
       </span>
     </div>
     <div class="info">
+      <span class="info__date">{{ year }}</span>
       <span class="info__activity">Run</span>
       <div class="info__stats">
         <span>{{ stats.ytd_run_totals.count }}</span>
@@ -37,6 +38,7 @@ export default {
   data () {
     return {
       stats: undefined,
+      year: new Date().getUTCFullYear(),
     }
   },
   computed: {
