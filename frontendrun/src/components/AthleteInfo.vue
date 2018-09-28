@@ -1,11 +1,13 @@
 <template>
   <div class="athlete" v-if="athlete && stats">
-    <div class="info">
+    <div class="info info__athlete">
       <span class="info__img">
-        <img :src="athlete.profile" />
+        <img :src="athlete.profile_medium" />
       </span>
-      <span>{{ athlete.firstname }}</span>
-      <span>{{ athlete.lastname }}</span>
+      <span class="info__name">
+        <span class="info__firstname">{{ athlete.firstname }}</span>
+        <span class="info__lastname">{{ athlete.lastname }}</span>
+      </span>
     </div>
     <div class="info">
       <span class="info__activity">Run</span>

@@ -118,6 +118,20 @@ body {
   flex-direction: column;
   padding: 10px;
 }
+.info__athlete {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+.info__name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 20px;
+}
+.info__firstname {
+}
+.info__lastname {
+}
 .info__activity {
   font-weight: bold;
   text-align: left;
@@ -127,7 +141,6 @@ body {
   justify-content: space-between;
 }
 .info__img {
-  width: 100%;
 }
 .item__header {
   margin: 0;
