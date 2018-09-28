@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Auth from './components/Auth.vue'
 import Home from './components/Home.vue'
+import GoalsList from './components/GoalsList.vue'
 
 Vue.use(VueRouter)
 const routes = [
@@ -14,7 +15,12 @@ const routes = [
   {
     name: 'auth',
     path: '/auth', 
-    component: Auth
+    component: Auth,
+  },
+  {
+    name: 'goals',
+    path: '/goals',
+    component: GoalsList,
   },
 ]
 

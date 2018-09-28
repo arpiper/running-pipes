@@ -17,6 +17,9 @@
       <span class="goal__progress_item">
         {{ goal.progress.percent_complete | number(0) }}% Completed
       </span>
+      <span class="goal__progress_finished" v-if="goal.progress.percent_complete == 100">
+        Nice Work! :)
+      </span>
     </div>
   </div>
 </template>
@@ -118,6 +121,9 @@ export default {
 }
 .goal__progress_item {
   margin-left: 10px;
+}
+.goal__progress_finished {
+  margin-left: auto;
 }
 .fade-enter {
   opacity: 0;

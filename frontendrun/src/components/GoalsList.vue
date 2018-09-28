@@ -1,14 +1,25 @@
 <template>
   <div>
     <div class="goals">
-      <transition-group name="goallist" tag='div' @enter="enter" @beforeEnter="beforeEnter" class='goals' :css="false">
-      <GoalItem 
-        v-for="(goal, i) of goals"
-        :key="goal._id"
-        :goal="goal"
-        :data-index="i">
-      </GoalItem>
-    </transition-group>
+      <transition-group name="goallist" tag='div' @enter="enter" @before-enter="beforeEnter" class='goals' :css="false">
+        <GoalItem 
+          v-for="(goal, i) of goals"
+          :key="goal._id"
+          :goal="goal"
+          :data-index="i">
+        </GoalItem>
+      </transition-group>
+    </div>
+    <div class="goals goals__inactive">
+      <h3>Past Goals</h3>
+      <transition-group v-if="showAll" name="goallist" tag='div' @enter="enter" @before-enter="beforeEnter" class='goals' :css="false">
+        <GoalItem 
+          v-for="(goal, i) of inactiveGoals"
+          :key="goal._id"
+          :goal="goal"
+          :data-index="i">
+        </GoalItem>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -22,6 +33,8 @@ export default {
   data () {
     return {
       goals: [],
+      inactiveGoals: [],
+      showAll: false,
     }
   },
   computed: {
@@ -44,7 +57,7 @@ export default {
       }
     },
     getStoreGoals (value) {
-      this.goals = value
+      this.goals = value.filter(v => v.active)
     },
   },
   methods: {
@@ -53,13 +66,15 @@ export default {
     ]),
     getGoals () {
       if (this.getStoreGoals.length > 0) {
-        console.log('goals', this.getStoreGoals)
         this.goals = this.getStoreGoals
       } else {
         fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
           .then(res => res.json())
           .then(res => {
-            this.goals = res.data.goals
+            // split the goals between active/inactive
+            [this.goals, this.inactiveGoals] = res.data.goals.reduce(([act, inact], el) => {
+              return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
+            }, [[],[]])
             this.setGoals(res.data.goals)
           })
       }
@@ -71,11 +86,9 @@ export default {
         .filter(v => v.active)
         .forEach((v, i) => {
           if (v.progress.most_recent.date < now) {
-            console.log('updating goal progress')
             fetch(`${this.api}/goals/${v._id}`, this.GET)
               .then(response => response.json())
               .then(response => {
-                console.log('update fecth',response)
                 this.goals[i] = response.data.goal
               })
           }
@@ -83,22 +96,22 @@ export default {
     },
     beforeEnter (el) {
       el.style.opacity = 0
-      el.style.top = `-100px`
-      el.style.backgroundColor = 'blue'
-      console.log('beforeenter', el)
+      el.style.height = 0
     },
-    enter (el) {
+    enter (el, done) {
       let d = el.dataset.index * 550
-      let t = el.dataset.index * 135
-      console.log('enter', el)
       setTimeout( () => {
         el.style.opacity = 1
-        el.style.top = `${t}px`
-        el.style.backgroundColor = 'white'
+        el.style.height = '125px'
       }, d)
+      done()
     },
   },
   created () {
+    console.log('goalslist', this.$route)
+    if (this.$route.name === 'goals') {
+      this.showAll = true
+    }
     if (this.userId !== undefined) {
       this.getGoals ()
     }
@@ -120,10 +133,8 @@ export default {
   position: relative;
 }
 .goal__item {
-  position: absolute;
-  width: 100%;
+  transition: all 1s;
 }
 .goallist {
-  transition: all 1s;
 }
 </style>

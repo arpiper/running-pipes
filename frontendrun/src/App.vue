@@ -1,9 +1,9 @@
 <template>
   <div id="app" class="app__container">
-    <header class="app__header">
-      Header
-    </header>
-    <router-view></router-view>
+    <Header></Header>
+    <main class="app__body">
+      <router-view></router-view>
+    </main>
     <div class="app__sidebar" v-if="getUserId">
       <AthleteInfo></AthleteInfo>
       <div class="goals__create">
@@ -23,6 +23,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import AddGoal from './components/AddGoal.vue'
 import AthleteInfo from './components/AthleteInfo.vue'
 import ButtonCmp from './components/ButtonCmp.vue'
+import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 
 export default {
@@ -36,6 +37,7 @@ export default {
     AddGoal,
     AthleteInfo,
     ButtonCmp,
+    Header,
     Footer,
   },
   computed: {
@@ -45,6 +47,9 @@ export default {
       'getToken',
       'api',
     ]),
+    ...mapGetters({
+      GET: 'getGetOpts',
+    }),
   },
   watch: {
   },
@@ -53,11 +58,42 @@ export default {
       'setAthlete',
       'setToken',
     ]),
+    checkToken () {
+      let t = JSON.parse(localStorage.getItem('acc-tok-ath'))
+      if (t) {
+        this.setToken(t.accessToken)
+        this.getAuthUser()
+      }
+    },
+    getAuthUser () {
+      let opts = this.GET
+      fetch(`${this.api}/athlete`, opts)
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          }
+          throw new Error('Response not ok')
+        })
+        .then(response => {
+          if (response !== 401) {
+            this.setAthlete(response.data.athlete)
+            this.userId = response.data.athlete.id
+          }
+        })
+        .catch(response => {
+          console.error('error', response)
+        })
+    },
     toggleAdd () {
       this.addGoal = !this.addGoal
     },
   },
   created () {
+    if (this.getToken === undefined) {
+      this.checkToken()
+    } else {
+      this.getAuthUser()
+    }
   },
 }
 </script>
