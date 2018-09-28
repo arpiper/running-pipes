@@ -10,9 +10,9 @@
         </GoalItem>
       </transition-group>
     </div>
-    <div class="goals goals__inactive">
+    <div class="goals goals__inactive" v-if="showAll">
       <h3>Past Goals</h3>
-      <transition-group v-if="showAll" name="goallist" tag='div' @enter="enter" @before-enter="beforeEnter" class='goals' :css="false">
+      <transition-group name="goallist" tag='div' @enter="enter" @before-enter="beforeEnter" class='goals' :css="false">
         <GoalItem 
           v-for="(goal, i) of inactiveGoals"
           :key="goal._id"
