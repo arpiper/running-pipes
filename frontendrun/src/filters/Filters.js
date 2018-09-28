@@ -62,3 +62,22 @@ Vue.filter('time', (value) => {
   }
   return `${Math.round(h)}H${Math.round(m)}M`
 })
+// format the text as all uppercase
+Vue.filter('upper', (value) => {
+  return value.toUpperCase()
+})
+// format the text as all lowercase
+Vue.filter('lower', (value) => {
+  return value.toLowerCase()
+})
+// format the text as all title case 
+Vue.filter('title', (value) => {
+  let s = ''
+  value.split(' ').forEach((v,i) => {
+    if (s.length > 0) {
+      s += ' '
+    }
+    s += v.charAt[0].toUpperCase() + v.slice(1).toLowerCase()
+  })
+  return s
+})
