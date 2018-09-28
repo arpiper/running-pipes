@@ -141,6 +141,46 @@ body {
 .goal__header {
   margin: 0;
 }
+.form__goal {
+  width: 100%;
+  flex-direction: column;
+  width: 100%;
+}
+.form__group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 3px 0;
+  align-items: flex-start;
+  font-weight: bold;
+  font-size: 12px;
+}
+.form__input {
+  width: 100%;
+}
+.button__button {
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-main);
+  border-radius: 2px;
+  padding: 5px 20px;
+  margin: 0 auto;
+  transition: all 0.5s;
+}
+.button__button_cancel {
+  background-color: var(--color-red);
+  transition: all 0.5s;
+}
+.button__button:hover {
+  cursor: pointer;
+}
+.button__icon {
+}
+.button__text_cross {
+  margin-left: 15px;
+}
 .cross {
   background: var(--color-gray-light);
   height: 1.5em;

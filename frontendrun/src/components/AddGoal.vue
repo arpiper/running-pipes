@@ -4,11 +4,11 @@
       <input type="hidden" name="goalUserId" :value="userId" >
       <div class="form__group">
         <label>Name</label>
-        <input type="text" v-model="goalName" autocomplete="off">
+        <input type="text" v-model="goalName" autocomplete="off" class="form__input">
       </div>
       <div class="form__group">
-        <label >Goal Type</label>
-        <select name="goalType" v-model="goalType">
+        <label>Goal Type</label>
+        <select name="goalType" v-model="goalType" class="form__input">
           <option v-for="(type, idx) in goalTypes" :value="type" :key="idx">
             {{ type }}
           </option>
@@ -16,7 +16,7 @@
       </div>
       <div class="form__group">
         <label>Activity</label>
-        <select name="goalActivity" v-model="goalActivity">
+        <select name="goalActivity" v-model="goalActivity" class="form__input">
           <option v-for="type in goalActivities" :value="type" :key="type">
             {{ type }}
           </option>
@@ -26,19 +26,21 @@
         @datePicked="startDatePicked($event)" 
         label_name="Start Date" 
         id="goal_start_date"
-        wrapper_classes="form__group">
+        wrapper_classes="form__group"
+        input_classes="form__input">
       </DatePicker>
       <DatePicker 
         @datePicked="endDatePicked($event)" 
         label_name="End Date" 
         id="goal_end_date"
-        wrapper_classes="form__group">
+        wrapper_classes="form__group"
+        input_classes="form__input">
       </DatePicker>
       <div class="form__group">
         <label for="goalTarget">Target</label>
-        <input id="goalTarget" name="goalTarget" v-model="goalTarget" autocomplete="off" />
+        <input id="goalTarget" name="goalTarget" v-model="goalTarget" autocomplete="off" class="form__input"/>
       </div>
-      <button>submit</button>
+      <button class="button__button">Submit</button>
     </form>
   </div>
 </template>
@@ -127,14 +129,5 @@ export default {
 </script>
 
 <style>
-.form__goal {
-  width: 100%;
-  flex-direction: column;
-  width: 100%;
-}
-.form__group {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+
 </style>
