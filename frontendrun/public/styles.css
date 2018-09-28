@@ -110,6 +110,25 @@ body {
   flex-wrap: wrap;
   justify-content: space-around;
 }
+.athlete {
+  width: 100%;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+.info__activity {
+  font-weight: bold;
+  text-align: left;
+}
+.info__stats {
+  display: flex;
+  justify-content: space-between;
+}
+.info__img {
+  width: 100%;
+}
 .item__header {
   margin: 0;
 }

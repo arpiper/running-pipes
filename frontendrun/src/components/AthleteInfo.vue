@@ -1,26 +1,27 @@
 <template>
-  <div>
-    <div class="block__athlete" v-if="athlete && stats">
-      <div class="block__info">
-        <span>  
-          <img :src="athlete.profile_medium" />
-        </span>
-        <span>{{ athlete.firstname }}</span>
-        <span>{{ athlete.lastname }}</span>
+  <div class="athlete" v-if="athlete && stats">
+    <div class="info">
+      <span class="info__img">
+        <img :src="athlete.profile" />
+      </span>
+      <span>{{ athlete.firstname }}</span>
+      <span>{{ athlete.lastname }}</span>
+    </div>
+    <div class="info">
+      <span class="info__activity">Run</span>
+      <div class="info__stats">
+        <span>{{ stats.ytd_run_totals.count }}</span>
+        <span>{{ stats.ytd_run_totals.distance | distance | units }}</span>
       </div>
-      <div class="block__stats">
-        <div>
-          <span>{{ stats.ytd_run_totals.count }}</span>
-          <span>{{ stats.ytd_run_totals.distance | distance | units }}</span>
-        </div>
-        <div>
-          <span>{{ stats.ytd_ride_totals.count }}</span>
-          <span>{{ stats.ytd_ride_totals.distance | distance | units }}</span>
-        </div>
-        <div>
-          <span>{{ stats.ytd_swim_totals.count }}</span>
-          <span>{{ stats.ytd_swim_totals.distance | distance | units }}</span>
-        </div>
+      <span class="info__activity">Ride</span>
+      <div class="info__stats">
+        <span>{{ stats.ytd_ride_totals.count }}</span>
+        <span>{{ stats.ytd_ride_totals.distance | distance | units }}</span>
+      </div>
+      <span class="info__activity">Swim</span>
+      <div class="info__stats">
+        <span>{{ stats.ytd_swim_totals.count }}</span>
+        <span>{{ stats.ytd_swim_totals.distance | distance | units }}</span>
       </div>
     </div>
   </div>
@@ -73,6 +74,7 @@ export default {
   mounted () {
     if (this.userId !== undefined) {
       this.getStats()
+      console.log('athlete', this.athlete)
     }
   }
 }
