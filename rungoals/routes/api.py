@@ -20,8 +20,9 @@ test = 'before'
 def validate_auth(func):
     @functools.wraps(func)
     def wrapper_validate_auth(*args, **kwargs):
-        if 'authorization' in request.headers.keys():
+        if 'Authorization' not in request.headers.keys():
             abort(401)
+        kwargs['auth'] = request.headers.get('Authorization').split(' ')[1]
         return func(*args, **kwargs)
     return wrapper_validate_auth
 
@@ -47,7 +48,7 @@ def get_token():
 
 @api_bp.route('/athlete', methods=['GET'])
 @validate_auth
-def get_athlete():
+def get_athlete(**kwargs):
     auth = request.headers['authorization'].split(' ')[1]
     st = get_strava(auth)
     athlete, status = st.get_auth_athlete()
@@ -67,7 +68,7 @@ def get_athlete():
 
 @api_bp.route('/data/<id>', methods=['GET'])
 @validate_auth
-def get_data(id):
+def get_data(id, **kwargs):
     g = goals.get_one(id)
     return jsonify({
         'message': 'api get datae',
@@ -79,7 +80,7 @@ def get_data(id):
 
 @api_bp.route('/activities', methods=['GET'])
 @validate_auth
-def get_activities():
+def get_activities(**kwargs):
     auth = request.headers['authorization'].split(' ')[1]
     st = get_strava(auth)
     data = st.get_activities()
@@ -92,7 +93,7 @@ def get_activities():
 
 @api_bp.route('/goals', methods=['GET', 'POST'])
 @validate_auth
-def get_goals():
+def get_goals(**kwargs):
     auth = request.headers.get('authorization').split(' ')[1]
     if request.method == 'GET':
         if 'userid' not in request.args.keys():
@@ -143,7 +144,7 @@ def get_goals():
 
 @api_bp.route('/goals/<id>', methods=['GET'])
 @validate_auth
-def get_goal(id):
+def get_goal(id, **kwargs):
     goal = goals.get_one(id)
     today = dt.now()
     auth = request.headers.get('authorization').split(' ')[1]
@@ -170,8 +171,8 @@ def get_goal(id):
 
 @api_bp.route('/goals/<int:year>', methods=['GET'])
 @validate_auth
-def get_goals_year(year):
-    auth = request.authorization
+def get_goals_year(year, **kwargs):
+    auth = request.headers.get('authorization').split(' ')[1]
     st = get_strava(auth)
     data = st.get_activities_by_year(year)
     return jsonify({
@@ -183,8 +184,9 @@ def get_goals_year(year):
     })
 
 @api_bp.route('/goals/<int:year>/<int:month>', methods=['GET'])
-def get_goals_month(year, month):
-    auth = request.authorization
+@validate_auth
+def get_goals_month(year, month, **kwargs):
+    auth = request.headers.get('authorization').split(' ')[1]
     st = get_strava(auth)
     data = st.get_activities_by_month(year, month)
     return jsonify({
@@ -201,7 +203,7 @@ def get_goals_month(year, month):
 
 @api_bp.route('/goals/refresh', methods=['POST'])
 @validate_auth
-def update_goals_progress():
+def update_goals_progress(**kwargs):
     data = request.get_json()
     if 'userId' not in data:
         return jsonify({
@@ -217,9 +219,10 @@ def update_goals_progress():
     })
 
 @api_bp.route('/stats/<int:athleteid>', methods=['GET'])
-def get_stats(athleteid):
-    auth = request.authorization
-    st = get_strava()
+@validate_auth
+def get_stats(athleteid, **kwargs):
+    auth = request.headers.get('authorization').split(' ')[1]
+    st = get_strava(auth)
     data = st.get_athlete_stats(athleteid)
     return jsonify({
         'message': f'retrieving athlete {athleteid} statistics',
