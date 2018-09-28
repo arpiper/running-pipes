@@ -132,6 +132,11 @@ class Goal():
 
             # strip the Z. python datetime doesn't like it
             t = dt.fromisoformat(act['start_date_local'][:-1])
+
+            # skip activity if it was before the goal started
+            if self.start > t.timestamp():
+                continue
+
             # track the most recent activity for later updates
             if (not self.progress['most_recent']['date'] or 
                 (self.progress['most_recent']['date'] < t.timestamp())):
