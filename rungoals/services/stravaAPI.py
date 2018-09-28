@@ -64,6 +64,9 @@ class StravaAPI():
         all_activities = []
         while 1:
             activities = self.get_activities(before=before, after=after, page=pg)
+            # error received from the Strava api
+            if type(activities) == dict and 'errors' in activities.keys():
+                break
             # exit the infinite loop after all activities retreived
             if len(activities) == 0:
                 break
