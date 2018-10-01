@@ -64,7 +64,8 @@ class Goals(dict):
         goals = []
         oldest = dt.now().timestamp()
         for goal in cursor:
-            if goal['progress']['most_recent']['date'] < oldest:
+            if (goal['progress']['most_recent']['date'] is not None
+                and goal['progress']['most_recent']['date'] < oldest):
                 oldest = goal['progress']['most_recent']['date']
             goals.append(Goal(goal, self.connection))
         return goals, oldest
