@@ -16,7 +16,7 @@ class Goal():
     # dictionary to track the goals progress
     progress = {
         'activity_cnt': 0,
-        'activities': [],
+        'activities': {},
         'current_duration': 0,
         'current_distance': 0,
         'percent_complete': 0,
@@ -116,7 +116,8 @@ class Goal():
         update the goals progress and check the dates.
         '''
         if self.check_end_date():
-            self.update_progress()
+            #self.update_progress()
+            pass
 
     def update_progress(self, activities):
         '''
@@ -129,12 +130,16 @@ class Goal():
             # guard against the wrong activities
             if act['type'] != self.activity:
                 continue 
+            
+            # check if activity already recorded
+            if str(act['id']) in self.progress['activities'].keys():
+                continue
 
             # strip the Z. python datetime doesn't like it
             t = dt.fromisoformat(act['start_date_local'][:-1])
 
             # skip activity if it was before the goal started
-            if self.start > t.timestamp():
+            if self.start.timestamp() > t.timestamp():
                 continue
 
             # track the most recent activity for later updates
@@ -148,13 +153,14 @@ class Goal():
             self.progress['current_distance'] += act['distance'] 
             # time in seconds
             self.progress['current_duration'] += act['moving_time'] 
-            # add the activity to array for tracking
-            self.progress['activities'].append({
+            # add the activity to dict for tracking, 
+            # convert the id to a string for BSON compatibility
+            self.progress['activities'][str(act['id'])] = {
                 'id': act['id'],
                 'distance': act['distance'],
                 'date': dt.fromisoformat(act['start_date_local'][:-1]),
                 'moving_time': act['moving_time'],
-            })
+            }
             self.progress['activity_cnt'] += 1
 
         # update the progress percentage
