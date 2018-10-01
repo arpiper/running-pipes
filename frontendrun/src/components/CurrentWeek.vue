@@ -72,7 +72,12 @@ export default {
       return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + (6 - d))
     },
     allReady () {
-      return this.totalsReady && this.getGoals.length > 0
+      if (this.getGoals.length > 0) {
+        return this.totalsReady
+      }
+      // there are no goals yet defined.
+      this.loading = false
+      return false
     },
   },
   watch: {
@@ -95,6 +100,7 @@ export default {
     getActivities () {
       if (this.getWeek) {
         this.activities = this.getWeek
+        this.setTotals()
       } else {
         fetch(`${this.api}/activities`, this.GET)
           .then(res => res.json())
@@ -133,7 +139,6 @@ export default {
             r = goal.target_m - goal.progress.current_duration
             total = this.totals.time
           }
-          console.log('r', r, 't', t)
           ig['perDay'] = r / t
           ig['perWeek'] = (r / t) * 7
           ig['percent'] = 100 * (total / (ig['perWeek']))
