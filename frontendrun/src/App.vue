@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="app__container">
     <Header></Header>
-    <Nav></Nav>
+    <Nav :loc="loc"></Nav>
     <main class="app__body">
       <router-view></router-view>
     </main>
@@ -53,6 +53,9 @@ export default {
     ...mapGetters({
       GET: 'getGetOpts',
     }),
+    loc () {
+      return this.$route.name
+    },
   },
   watch: {
   },

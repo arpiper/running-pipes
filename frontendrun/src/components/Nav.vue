@@ -1,17 +1,23 @@
 <template>
   <nav class="app__nav">
-    <a href="/" class="link__nav">
+    <router-link to="home" class="link__nav" :class="{link__nav_style_active: loc == 'home'}" >
       <span class="link__text">Home</span>
-    </a>
-    <a href="/goals" class="link__nav">
+    </router-link>
+    <router-link to="goals" class="link__nav" :class="{link__nav_style_active: loc == 'goals'}" >
       <span class="link__text">Goals</span>
-    </a>
+    </router-link>
   </nav>
 </template>
 
 <script>
 export default {
   name: 'nav-cmp',
+  props: {
+    loc: {
+      type: String,
+      default: 'home'
+    },
+  },
   data () {
     return {
     }
@@ -24,6 +30,7 @@ export default {
   grid-area: nav;
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
 }
 .link__nav {
@@ -31,13 +38,18 @@ export default {
   color: var(--color-main);
   font-weight: bold;
   display: inline-flex;
+  height: 100%;
+  align-items: center;
 }
 .link__text {
-  padding: 10px 25px;;
+  padding: 0 25px;
   width: 100%;
+  height: 100%;
+}
+.link__nav_style_active {
+  text-decoration: underline;
 }
 .link__text:hover {
-  background-color: var(--color-main-dark);
-  opacity: 0.75;
+  background-color: var(--color-main-dark-02);
 }
 </style>

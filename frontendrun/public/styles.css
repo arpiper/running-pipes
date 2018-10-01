@@ -2,6 +2,8 @@
   --color-main: #4CAF50;
   --color-main-light: #80E27E;
   --color-main-dark: #087F23;
+  --color-main-02: rgba(75, 175, 80, 0.2);
+  --color-main-dark-02: rgba(8, 127, 35, 0.2);
   --color-secondary: #37474F;
   --color-secondary-light: #62727B;
   --color-secondary-dark: #102027;
@@ -32,7 +34,7 @@ body {
   width: 100%;
   display: grid;
   margin: 0 auto;
-  grid-template-rows: 100px 25px 1fr 50px;
+  grid-template-rows: 100px 35px 1fr 50px;
   grid-template-columns: 10% 60% 20% 10%;
   grid-template-areas: 
     'header header header header'
