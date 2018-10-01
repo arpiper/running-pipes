@@ -10,8 +10,8 @@
       <div class="goals__create">
         <ButtonCmp :toggle='addGoal' @click.native="toggleAdd()">
         </ButtonCmp>
-        <div v-if="addGoal">
-          <AddGoal @goalAdded='toggleAdd()'></AddGoal>
+        <div v-show="addGoal">
+          <AddGoal @goalAdded='toggleAdd()' :show="addGoal"></AddGoal>
         </div>
       </div>
     </div>
@@ -110,6 +110,18 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: var(--color-secondary);
+}
+.roll-enter {
+  height: 0;
+}
+.roll-enter-to {
+  height: 200px;
+}
+.roll-leave-to { 
+  height: 0;
+}
+.roll-enter-active {
+  transition: height 3s;
 }
 </style>

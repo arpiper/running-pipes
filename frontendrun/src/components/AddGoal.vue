@@ -1,58 +1,66 @@
 <template>
-  <div>
-    <form name="add_goal" @submit.prevent="formSubmit" class="form__goal">
-      <input type="hidden" name="goalUserId" :value="userId" >
-      <div class="form__group">
-        <label>Name</label>
-        <input type="text" v-model="goalName" autocomplete="off" class="form__input">
-      </div>
-      <div class="form__group">
-        <label>Goal Type</label>
-        <select name="goalType" v-model="goalType" class="form__input">
-          <option v-for="(type, idx) in goalTypes" :value="type" :key="idx">
-            {{ type }}
-          </option>
-        </select>
-      </div>
-      <div class="form__group">
-        <label>Activity</label>
-        <select name="goalActivity" v-model="goalActivity" class="form__input">
-          <option v-for="type in goalActivities" :value="type" :key="type">
-            {{ type }}
-          </option>
-        </select>
-      </div>
-      <DatePicker 
-        @datePicked="startDatePicked($event)" 
-        label_name="Start Date" 
-        id="goal_start_date"
-        wrapper_classes="form__group"
-        input_classes="form__input">
-      </DatePicker>
-      <DatePicker 
-        @datePicked="endDatePicked($event)" 
-        label_name="End Date" 
-        id="goal_end_date"
-        wrapper_classes="form__group"
-        input_classes="form__input">
-      </DatePicker>
-      <div class="form__group">
-        <label for="goalTarget">Target</label>
-        <input id="goalTarget" name="goalTarget" v-model="goalTarget" autocomplete="off" class="form__input"/>
-      </div>
-      <button class="button__button">Submit</button>
-    </form>
-  </div>
+  <transition type="spin" name="roll-down">
+    <div v-if="show" class="form__container">
+      <Loading :loading="waiting"></Loading>
+      <form name="add_goal" @submit.prevent="formSubmit" class="form__goal">
+        <input type="hidden" name="goalUserId" :value="userId" >
+        <div class="form__group">
+          <label>Name</label>
+          <input type="text" v-model="goalName" autocomplete="off" class="form__input">
+        </div>
+        <div class="form__group">
+          <label>Goal Type</label>
+          <select name="goalType" v-model="goalType" class="form__input">
+            <option v-for="(type, idx) in goalTypes" :value="type" :key="idx">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+        <div class="form__group">
+          <label>Activity</label>
+          <select name="goalActivity" v-model="goalActivity" class="form__input">
+            <option v-for="type in goalActivities" :value="type" :key="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+        <DatePicker 
+          @datePicked="startDatePicked($event)" 
+          label_name="Start Date" 
+          id="goal_start_date"
+          wrapper_classes="form__group"
+          input_classes="form__input">
+        </DatePicker>
+        <DatePicker 
+          @datePicked="endDatePicked($event)" 
+          label_name="End Date" 
+          id="goal_end_date"
+          wrapper_classes="form__group"
+          input_classes="form__input">
+        </DatePicker>
+        <div class="form__group">
+          <label for="goalTarget">Target</label>
+          <input id="goalTarget" name="goalTarget" v-model="goalTarget" autocomplete="off" class="form__input"/>
+        </div>
+        <button class="button__button">Submit</button>
+      </form>
+    </div>
+  </transition>
 </template>
 
 <script>
 import DatePicker from './DatePicker.vue'
+import Loading from './Loading.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'add-goal',
   props: {
     //userId: [String, Number],
+    show: {
+      type: Boolean,
+      default: false,
+    },
   },
   data () {
     return {
@@ -73,6 +81,7 @@ export default {
       goalStart: new Date(),
       goalEnd: new Date(),
       url: 'http://localhost:5000/api/goals',
+      waiting: false,
     }
   },
   computed: {
@@ -92,6 +101,7 @@ export default {
       this.goalEnd = date
     },
     formSubmit () {
+      this.waiting = true
       let target_m = 0
       if (this.goalType === 'distance') {
         target_m = (this.goalTarget / 0.000621371) // convert to meters
@@ -119,15 +129,35 @@ export default {
           // emit event to notify parent of new goal
           this.$emit('goalAdded')
           this.updateGoals(res.data.goal)
+          this.waiting = false
         })
     },
   },
   components: {
     DatePicker,
+    Loading,
   }
 }
 </script>
 
 <style>
+.roll-down-enter,
+.v-enter {
+  opacity: 0;
+}
+.roll-down-enter-to,
+.roll-down-leave,
+.v-enter-to {
+  opacity: 1;
+}
+.roll-down-leave-to,
+.v-leave-to{ 
+  opacity: 0;
+}
+.roll-down-enter-active,
+.roll-down-leave-active,
+.v-enter-active {
+  transition: all 1s;
+}
 
 </style>
