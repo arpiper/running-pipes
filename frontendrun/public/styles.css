@@ -178,6 +178,9 @@ body {
 .goal__header {
   margin: 0;
 }
+.form__container {
+  position: relative;
+}
 .form__goal {
   width: 100%;
   flex-direction: column;
@@ -313,11 +316,16 @@ body {
   left: calc(50% - 20px);
 }
 @keyframes slider {
-  from {
+  0% {
     width: 0;
   }
-  to {
+  50% {
     width: 100%;
+    left: 0;
+  }
+  100% {
+    left: 200px;
+    width: 0;
   }
 }
 @keyframes spin {
