@@ -82,7 +82,6 @@ export default {
   },
   watch: {
     getGoals (value) {
-      console.log('curretn week wathc', value)
       if (this.allReady) {
         this.checkImplicitGoals()
       }
@@ -116,11 +115,9 @@ export default {
         this.totals.time += a.moving_time
         this.totals.dist += a.distance
       })
-      console.log('activities, totals', this.activities, this.totals)
       this.totalsReady = true
     },
     checkImplicitGoals () {
-      console.log('implicit goals', this.getGoals)
       this.implicitGoals = this.getGoals
         .filter((goal) => goal.active)
         .map((goal) => {
