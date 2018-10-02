@@ -68,7 +68,12 @@ const store = new Vuex.Store({
       state.goals = goals
     },
     updateGoals (state, goal) {
-      state.goals.push(goal)
+      let i = state.goals.find(v => v._id === goal._id)
+      if (i !== undefined) {
+        state.goals[i] = goal
+      } else {
+        state.goals.push(goal)
+      }
     },
     setStats (state, stats) {
       state.stats = stats
