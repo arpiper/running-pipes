@@ -1,10 +1,11 @@
 <template>
   <div class="app__body">
+    <Loading :loading='loading'></Loading>
     <div v-if="getUserId">
       <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
       <GoalsList @loaded='goalsLoaded()'></GoalsList>
     </div>
-    <div v-if="!getUserId" class="content__item">
+    <div v-if="showStravaAuth" class="content__item">
       <p>no authorized user</p>
       <div class="block__athlete_auth">
         <span class="block_athlete_auth_button">
@@ -21,11 +22,14 @@
 import { mapGetters, mapMutations } from 'vuex'
 import GoalsList from './GoalsList.vue'
 import CurrentWeek from './CurrentWeek.vue'
+import Loading from './Loading.vue'
 
 export default {
   name: 'home-cmp',
   data () {
     return {
+      showStravaAuth: false,
+      loading: true,
       userId: undefined,
       currentWeek: false,
       goals: false,
@@ -73,22 +77,24 @@ export default {
       if (t) {
         this.setToken(t.accessToken)
         this.getAuthUser()
+      } else {
+        this.showStravaAuth = true
+        this.loading = false
       }
     },
     getAuthUser () {
       let opts = this.GET
       fetch(`${this.api}/athlete`, opts)
         .then(response => {
-          if (response.ok) {
+          if (response.status === 200) {
             return response.json()
-          }
+          } 
           throw new Error('Response not ok')
         })
         .then(response => {
-          if (response !== 401) {
-            this.setAthlete(response.data.athlete)
-            this.userId = response.data.athlete.id
-          }
+          this.setAthlete(response.data.athlete)
+          this.userId = response.data.athlete.id
+          this.loading = false
         })
         .catch(response => {
           console.error('error', response)
@@ -111,6 +117,7 @@ export default {
   components: {
     GoalsList,
     CurrentWeek,
+    Loading,
   },
 }
 </script>
