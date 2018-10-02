@@ -72,6 +72,7 @@ body {
   grid-area: body;
   padding: 10px 0;
   position: relative;
+  height: 100%;
 }
 .app__sidebar {
   grid-area: sidebar;
