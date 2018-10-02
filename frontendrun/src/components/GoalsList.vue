@@ -57,24 +57,32 @@ export default {
       }
     },
     getStoreGoals (value) {
-      this.goals = value.filter(v => v.active)
+      /*[this.goals, this.inactiveGoals] = value.reduce(([act, inact], el) => {
+        return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
+      }, [[],[]])*/
+      this.splitGoals(value)
     },
   },
   methods: {
     ...mapMutations([
+      'updateGoals',
       'setGoals',
     ]),
     getGoals () {
       if (this.getStoreGoals.length > 0) {
-        this.goals = this.getStoreGoals
+        /*[this.goals, this.inactiveGoals] = this.getStoreGoals.reduce(([act, inact], el) => {
+          return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
+        }, [[],[]])*/
+        this.splitGoals(this.getStoreGoals)
       } else {
         fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
           .then(res => res.json())
           .then(res => {
             // split the goals between active/inactive
-            [this.goals, this.inactiveGoals] = res.data.goals.reduce(([act, inact], el) => {
+            this.splitGoals(res.data.goals)
+            /*[this.goals, this.inactiveGoals] = res.data.goals.reduce(([act, inact], el) => {
               return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
-            }, [[],[]])
+            }, [[],[]])*/
             this.setGoals(res.data.goals)
           })
       }
@@ -84,15 +92,21 @@ export default {
       let now = new Date().getTime() / 1000
       this.goals
         .filter(v => v.active)
+        .filter(v => v.progress.most_recent.date < now)
         .forEach((v, i) => {
-          if (v.progress.most_recent.date < now) {
-            fetch(`${this.api}/goals/${v._id}`, this.GET)
-              .then(response => response.json())
-              .then(response => {
-                this.goals[i] = response.data.goal
-              })
-          }
+          fetch(`${this.api}/goals/${v._id}`, this.GET)
+            .then(response => response.json())
+            .then(response => {
+              //this.goals[i] = response.data.goal
+              this.updateGoals(response.data.goal)
+            })
         })
+    },
+    splitGoals (list) {
+      // splits the list of all goals given into active/inactive
+      [this.goals, this.inactiveGoals] = list.reduce(([act, inact], el) => {
+        return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
+      }, [[],[]])
     },
     beforeEnter (el) {
       el.style.opacity = 0
@@ -108,7 +122,6 @@ export default {
     },
   },
   created () {
-    console.log('goalslist', this.$route)
     if (this.$route.name === 'goals') {
       this.showAll = true
     }
