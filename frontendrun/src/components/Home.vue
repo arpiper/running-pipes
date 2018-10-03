@@ -1,6 +1,6 @@
 <template>
   <div class="app__body">
-    <Loading :loading='loading'></Loading>
+    <!--lOADing :loading='loading'></Loading-->
     <div v-if="getUserId">
       <CurrentWeek @loaded='currentWeekLoaded()'></CurrentWeek>
       <GoalsList @loaded='goalsLoaded()'></GoalsList>

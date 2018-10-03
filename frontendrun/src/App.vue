@@ -3,7 +3,9 @@
     <Header></Header>
     <Nav :loc="loc"></Nav>
     <main class="app__body">
+      <transition name="fade">
       <router-view></router-view>
+      </transition>
     </main>
     <div class="app__sidebar" v-if="getUserId">
       <AthleteInfo></AthleteInfo>
@@ -123,5 +125,17 @@ export default {
 }
 .roll-enter-active {
   transition: height 3s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to,
+.fade-leave {
+  opacity: 1;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s;
 }
 </style>
