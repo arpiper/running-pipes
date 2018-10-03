@@ -78,7 +78,7 @@ export default {
   mounted () {
     if (this.userId !== undefined) {
       this.getStats()
-      console.log('athlete', this.athlete)
+      console.log('athlete', this.athlete, this.stats)
     }
   }
 }

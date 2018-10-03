@@ -57,9 +57,6 @@ export default {
       }
     },
     getStoreGoals (value) {
-      /*[this.goals, this.inactiveGoals] = value.reduce(([act, inact], el) => {
-        return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
-      }, [[],[]])*/
       this.splitGoals(value)
     },
   },
@@ -70,9 +67,6 @@ export default {
     ]),
     getGoals () {
       if (this.getStoreGoals.length > 0) {
-        /*[this.goals, this.inactiveGoals] = this.getStoreGoals.reduce(([act, inact], el) => {
-          return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
-        }, [[],[]])*/
         this.splitGoals(this.getStoreGoals)
       } else {
         fetch(`${this.api}/goals?userid=${this.userId}`, this.GET)
@@ -80,9 +74,6 @@ export default {
           .then(res => {
             // split the goals between active/inactive
             this.splitGoals(res.data.goals)
-            /*[this.goals, this.inactiveGoals] = res.data.goals.reduce(([act, inact], el) => {
-              return (el.active) ? [[...act, el], inact] : [act, [...inact, el]]
-            }, [[],[]])*/
             this.setGoals(res.data.goals)
           })
       }
@@ -93,7 +84,7 @@ export default {
       this.goals
         .filter(v => v.active)
         .filter(v => v.progress.most_recent.date < now)
-        .forEach((v, i) => {
+        .forEach((v) => {
           fetch(`${this.api}/goals/${v._id}`, this.GET)
             .then(response => response.json())
             .then(response => {

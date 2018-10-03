@@ -70,6 +70,7 @@ export default {
     },
   },
   created () {
+    console.log('goalitme', this.goal)
   }
 }
 </script>

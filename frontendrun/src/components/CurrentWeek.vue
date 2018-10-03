@@ -1,6 +1,6 @@
 <template>
   <div class="content__item">
-    <Loading type='spin' :loading='loading'></loading>
+    <!--Loading type='spin' :loading='loading'></loading-->
     <div class="content__item_header">
       <span class="block__current_week">
         <h2 class="item__header">
@@ -75,13 +75,12 @@ export default {
       if (this.getGoals.length > 0) {
         return this.totalsReady
       }
-      // there are no goals yet defined.
-      this.loading = false
+      
       return false
     },
   },
   watch: {
-    getGoals (value) {
+    getGoals () {
       if (this.allReady) {
         this.checkImplicitGoals()
       }
@@ -90,6 +89,8 @@ export default {
       if (value) {
         this.checkImplicitGoals()
       }
+      // there are no goals yet defined.
+      this.loading = false
     }
   },
   methods: {
