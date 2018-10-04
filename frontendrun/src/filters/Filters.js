@@ -73,7 +73,7 @@ Vue.filter('lower', (value) => {
 // format the text as all title case 
 Vue.filter('title', (value) => {
   let s = ''
-  value.split(' ').forEach((v,i) => {
+  value.split(' ').forEach((v) => {
     if (s.length > 0) {
       s += ' '
     }
