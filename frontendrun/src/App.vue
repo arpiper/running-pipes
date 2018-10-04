@@ -3,8 +3,9 @@
     <Header></Header>
     <Nav :loc="loc"></Nav>
     <main class="app__body">
-      <transition name="fade">
-      <router-view></router-view>
+      <Loading :loading="loading"></Loading>
+      <transition name="fade" mode='out-in'>
+        <router-view></router-view>
       </transition>
     </main>
     <div class="app__sidebar" v-if="getUserId">
@@ -29,12 +30,14 @@ import ButtonCmp from './components/ButtonCmp.vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import Nav from './components/Nav.vue'
+import Loading from './components/Loading.vue'
 
 export default {
   name: 'app',
   data () {
     return {
       addGoal: false,
+      loading: true,
     }
   },
   components: {
@@ -44,6 +47,7 @@ export default {
     Header,
     Footer,
     Nav,
+    Loading,
   },
   computed: {
     ...mapGetters([
@@ -60,6 +64,11 @@ export default {
     },
   },
   watch: {
+    getAthlete (value) {
+      if (value !== undefined) {
+        this.loading = false
+      }
+    },
   },
   methods: {
     ...mapMutations([
@@ -97,10 +106,12 @@ export default {
     },
   },
   created () {
-    if (this.getToken === undefined) {
-      this.checkToken()
-    } else {
-      this.getAuthUser()
+    if (this.$route.name !== 'home') {
+      if (this.getToken === undefined) {
+        this.checkToken()
+      } else {
+        this.getAuthUser()
+      }
     }
   },
 }

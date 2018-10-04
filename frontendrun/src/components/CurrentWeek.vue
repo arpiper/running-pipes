@@ -151,6 +151,8 @@ export default {
   created () {
     this.getActivities()
   },
+  destroyed () {
+  },
   components: {
     GoalItemSmall,
     Loading,

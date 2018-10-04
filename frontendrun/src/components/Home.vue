@@ -83,6 +83,7 @@ export default {
       }
     },
     getAuthUser () {
+      console.log('home')
       let opts = this.GET
       fetch(`${this.api}/athlete`, opts)
         .then(response => {
@@ -113,6 +114,8 @@ export default {
     } else {
       this.getAuthUser()
     }
+  },
+  destroyed () {
   },
   components: {
     GoalsList,

@@ -88,7 +88,6 @@ export default {
           fetch(`${this.api}/goals/${v._id}`, this.GET)
             .then(response => response.json())
             .then(response => {
-              //this.goals[i] = response.data.goal
               this.updateGoals(response.data.goal)
             })
         })
@@ -122,6 +121,8 @@ export default {
   },
   mounted () {
     this.$emit('loaded')
+  },
+  destroyed () {
   },
   components: {
     GoalItem,

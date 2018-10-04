@@ -4,7 +4,9 @@
     <span class="goal__data_pos_center" ref="percent" :style="percentStyle">
       {{ percent | number(0) }}%
     </span>
-    <span >{{ goal.perWeek | distance }}</span>
+    <span >
+      {{ goal.perWeek | distance }}
+    </span>
     <div class="goal__progress-chart" :id="goalId">
     </div>
   </div>
@@ -30,7 +32,8 @@ export default {
       percent: 0,
       leftPercent: 0,
       percentStyle: {left: 'calc(50%)'},
-      transitionDuration: 3500,
+      transitionDuration: 2000, // milliseconds
+      timer: undefined,
     }
   },
   computed: {
@@ -136,13 +139,13 @@ export default {
     },
     countPercent () {
       let step = this.transitionDuration / this.goal.percent
-      let timer = setInterval(() => {
+      this.timer = setInterval(() => {
         // shift the percent to be centered in the circle
         if (this.$refs.percent.offsetWidth > this.leftPercent) {
           this.leftPercent = this.$refs.percent.offsetWidth
         }
         if (this.percent === Math.round(this.goal.percent) || this.percent === 100) {
-          clearInterval(timer)
+          clearInterval(this.timer)
         } else {
           this.percent++
         }
@@ -150,12 +153,14 @@ export default {
     },
   },
   mounted () {
-    console.log('implicit', this.goal)
     this.drawCircle()
     if (this.goal.percent > 0) {
       this.countPercent()
     }
     this.$emit('loaded')
+  },
+  destroyed () {
+    clearInterval(this.timer)
   },
 }
 </script>
