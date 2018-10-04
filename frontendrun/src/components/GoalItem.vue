@@ -2,7 +2,9 @@
   <div class="goal__item">
     <div class="goal__header">
       <span v-if="goal.name" class="goal__info">
-        <h3 class="goal__name">{{ goal.name }}</h3>
+        <router-link :to="{name: 'goal', params: { id: goal._id }}" class="link">
+          <h3 class="goal__name">{{ goal.name }}</h3>
+        </router-link>
         <span class="goal__target">{{ goal.target }} {{ units }}</span>
       </span>
       <span class="goal__progress_bar" :style="borderBottom()"></span>
@@ -70,8 +72,9 @@ export default {
     },
   },
   created () {
-    console.log('goalitme', this.goal)
-  }
+  },
+  destroyed () {
+  },
 }
 </script>
 

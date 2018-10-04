@@ -43,6 +43,9 @@ const store = new Vuex.Store({
     getGoals (state) {
       return state.goals
     },
+    getGoal (state) {
+      return (id) => state.goals.find(v => v._id === id)
+    },
     getStats (state) {
       return state.stats
     },
